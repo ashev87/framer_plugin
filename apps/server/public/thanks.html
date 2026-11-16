@@ -31,7 +31,7 @@
       const res = await fetch("/api/licence?session_id=" + encodeURIComponent(id || ""))
       const json = await res.json()
       if (res.ok) {
-        status.textContent = json.plan === "agency" ? "Valid for five sites, for one year." : "Valid for one site, for one year."
+        status.textContent = json.plan === "agency" ? "Valid for five sites. Renews yearly until you cancel." : "Valid for one site. Renews yearly until you cancel."
         key.textContent = json.key; key.hidden = false
         return
       }

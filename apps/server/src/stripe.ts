@@ -3,10 +3,13 @@ import { Hono } from "hono"
 import type { Db } from "./db.js"
 
 export const PLANS = {
-    site: { name: "SyncRoles Auto-sync: 1 site, 1 year", amount: 9900, maxSites: 1 },
-    agency: { name: "SyncRoles Agency: 5 sites, 1 year", amount: 24900, maxSites: 5 },
+    site: { lookupKey: "syncroles_site_yearly", maxSites: 1 },
+    agency: { lookupKey: "syncroles_agency_yearly", maxSites: 5 },
 } as const
 export type Plan = keyof typeof PLANS
+
+/** Days a licence keeps working after its paid period ends, to ride out a late or retried renewal charge. */
+const GRACE_DAYS = 3
 
 export interface StripeConfig {
     secretKey: string
@@ -48,32 +51,57 @@ export async function fulfil(db: Db, session: any): Promise<string | null> {
     const plan = session?.metadata?.plan as Plan | undefined
     if (session?.payment_status !== "paid" || !plan || !(plan in PLANS)) return null
     await db.query(
-        `insert into licences (key, plan, max_sites, email, stripe_customer_id, stripe_session_id, stripe_payment_intent, expires_at)
-         values ($1,$2,$3,$4,$5,$6,$7, now() + interval '1 year')
+        `insert into licences (key, plan, max_sites, email, stripe_customer_id, stripe_session_id, stripe_subscription_id, expires_at)
+         values ($1,$2,$3,$4,$5,$6,$7, now() + interval '1 year' + make_interval(days => $8))
          on conflict (stripe_session_id) do nothing`,
-        [newLicenceKey(), plan, PLANS[plan].maxSites, session.customer_details?.email ?? null, session.customer ?? null, session.id, session.payment_intent ?? null]
+        [newLicenceKey(), plan, PLANS[plan].maxSites, session.customer_details?.email ?? null, session.customer ?? null, session.id,
+         session.subscription ?? null, GRACE_DAYS]
     )
     const { rows } = await db.query(`select key from licences where stripe_session_id = $1 and status = 'active'`, [session.id])
     return rows[0]?.key ?? null
 }
 
+/** A renewal invoice was paid: the licence runs until the end of the period it paid for. */
+async function renew(db: Db, invoice: any): Promise<void> {
+    const subscription = invoice?.subscription ?? invoice?.parent?.subscription_details?.subscription
+    const periodEnd = Math.max(0, ...(invoice?.lines?.data ?? []).map((l: any) => Number(l?.period?.end) || 0))
+    if (typeof subscription !== "string" || !periodEnd) return
+    await db.query(
+        `update licences set expires_at = greatest(expires_at, to_timestamp($2) + make_interval(days => $3)), status = 'active'
+         where stripe_subscription_id = $1 and status <> 'refunded'`,
+        [subscription, periodEnd, GRACE_DAYS]
+    )
+}
+
 export function createBilling(db: Db, config: StripeConfig): Hono {
     const app = new Hono()
 
-    /** Landing page buy button: /buy?plan=site or /buy?plan=agency. */
+    const priceIds = new Map<Plan, string>()
+    const priceFor = async (plan: Plan): Promise<string> => {
+        const cached = priceIds.get(plan)
+        if (cached) return cached
+        const list = await stripe(config, "GET", `/prices?active=true&lookup_keys[]=${PLANS[plan].lookupKey}`)
+        const id = list?.data?.[0]?.id
+        if (typeof id !== "string") throw new Error(`No Stripe price with lookup key ${PLANS[plan].lookupKey}`)
+        priceIds.set(plan, id)
+        return id
+    }
+
+    /** Landing page buy button: /buy?plan=site or /buy?plan=agency. A yearly subscription with tax worked out by Stripe. */
     app.get("/buy", async c => {
         const plan = (c.req.query("plan") ?? "site") as Plan
         if (!(plan in PLANS)) return c.text("Unknown plan", 400)
         const session = await stripe(config, "POST", "/checkout/sessions", {
-            mode: "payment",
+            mode: "subscription",
             "line_items[0][quantity]": "1",
-            "line_items[0][price_data][currency]": "usd",
-            "line_items[0][price_data][unit_amount]": String(PLANS[plan].amount),
-            "line_items[0][price_data][product_data][name]": PLANS[plan].name,
+            "line_items[0][price]": await priceFor(plan),
+            "automatic_tax[enabled]": "true",
+            "tax_id_collection[enabled]": "true",
+            billing_address_collection: "required",
             "metadata[plan]": plan,
             "metadata[product]": "syncroles",
-            "payment_intent_data[metadata][product]": "syncroles",
-            "payment_intent_data[description]": PLANS[plan].name,
+            "subscription_data[metadata][plan]": plan,
+            "subscription_data[metadata][product]": "syncroles",
             allow_promotion_codes: "true",
             success_url: `${config.siteUrl}/thanks?session_id={CHECKOUT_SESSION_ID}`,
             cancel_url: `${config.siteUrl}/#pricing`,
@@ -85,11 +113,23 @@ export function createBilling(db: Db, config: StripeConfig): Hono {
         const payload = await c.req.text()
         if (!verifyWebhook(payload, c.req.header("stripe-signature"), config.webhookSecret)) return c.text("Bad signature", 400)
         const event = JSON.parse(payload)
+        const object = event.data?.object
         if (event.type === "checkout.session.completed" || event.type === "checkout.session.async_payment_succeeded") {
-            await fulfil(db, event.data.object)
-        } else if (event.type === "charge.refunded" && event.data.object?.refunded === true) {
-            // A fully refunded licence stops scheduling; the site falls back to manual sync.
-            await db.query(`update licences set status = 'refunded' where stripe_payment_intent = $1`, [event.data.object.payment_intent])
+            await fulfil(db, object)
+        } else if (event.type === "invoice.paid") {
+            await renew(db, object)
+        } else if (event.type === "customer.subscription.deleted") {
+            // Cancelled or unpaid to the end: scheduling stops and the site falls back to manual sync.
+            await db.query(`update licences set status = 'expired' where stripe_subscription_id = $1 and status = 'active'`, [object?.id])
+        } else if (event.type === "charge.refunded" && object?.refunded === true && typeof object.customer === "string") {
+            // A full refund revokes the licence when it is unambiguous which one was refunded.
+            const { rowCount } = await db.query(
+                `update licences set status = 'refunded'
+                 where stripe_customer_id = $1 and status = 'active'
+                   and (select count(*) from licences where stripe_customer_id = $1 and status = 'active') = 1`,
+                [object.customer]
+            )
+            if (!rowCount) console.log("refund without a single matching licence: review in Stripe")
         }
         return c.json({ received: true })
     })
