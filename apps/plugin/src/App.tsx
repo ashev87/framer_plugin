@@ -40,7 +40,7 @@ function Onboarding({ projectId, onConnected }: { projectId: string; onConnected
     const [preview, setPreview] = useState<Preview | null>(null)
     const [apiKey, setApiKey] = useState("")
     const [projectUrl, setProjectUrl] = useState("")
-    const [needUrl, setNeedUrl] = useState(false)
+    const [needUrl, setNeedUrl] = useState(true)
     const [publishMode, setPublishMode] = useState<PublishMode>("sync-only")
     const [busy, setBusy] = useState(false)
     const [error, setError] = useState<string | null>(null)
@@ -119,18 +119,18 @@ function Onboarding({ projectId, onConnected }: { projectId: string; onConnected
                     ))}
                 </ul>
             )}
+            {needUrl && (
+                <label>
+                    Project URL
+                    <input type="text" value={projectUrl} placeholder="https://framer.com/projects/…" onChange={e => setProjectUrl(e.target.value)} />
+                    <small>Copy the address from your browser's address bar while this project is open.</small>
+                </label>
+            )}
             <label>
                 Framer Server API key
                 <input type="password" value={apiKey} autoComplete="off" onChange={e => setApiKey(e.target.value)} />
                 <small>Site Settings › General › API keys. It is stored encrypted and you can delete it here at any time.</small>
             </label>
-            {needUrl && (
-                <label>
-                    Project URL
-                    <input type="text" value={projectUrl} placeholder="https://framer.com/projects/…" onChange={e => setProjectUrl(e.target.value)} />
-                    <small>Copy the address from your browser while this project is open.</small>
-                </label>
-            )}
             {MODES.map(m => (
                 <label className="row" key={m.mode}>
                     <input type="radio" name="mode" checked={publishMode === m.mode} onChange={() => setPublishMode(m.mode)} />
@@ -140,8 +140,9 @@ function Onboarding({ projectId, onConnected }: { projectId: string; onConnected
                     </span>
                 </label>
             ))}
-            {error && <p className="error">{error}</p>}
             <div className="spacer" />
+            <div className="footer">
+            {error && <p className="error">{error}</p>}
             <button
                 className="framer-button-primary"
                 disabled={busy || !apiKey.trim() || (needUrl && !projectUrl.trim())}
@@ -159,6 +160,7 @@ function Onboarding({ projectId, onConnected }: { projectId: string; onConnected
             >
                 {busy ? "Syncing…" : "Create Jobs collection and sync"}
             </button>
+            </div>
         </main>
     )
 }
