@@ -1,6 +1,7 @@
 import { readFile } from "node:fs/promises"
 import { createServer } from "node:http"
 import { syncToFramer, type PublishMode } from "./framer.js"
+import { probe } from "./probe.js"
 
 const port = Number(process.env.PORT ?? 3000)
 
@@ -39,15 +40,18 @@ if (spike) {
         console.log("spike: skipped, need SPIKE_SOURCE=<kind>:<handle>, FRAMER_PROJECT_URL and FRAMER_API_KEY")
     } else {
         const started = Date.now()
-        syncToFramer({
+        const log = (label: string) => (r: unknown) => console.log(`probe ${label}:`, JSON.stringify(r))
+        const probing = process.env.SPIKE_PROBE === "1"
+        const before = probing ? probe(projectUrl, apiKey).then(log("before"), log("before failed")) : Promise.resolve()
+        before.then(() => syncToFramer({
             projectUrl,
             apiKey,
             source: { kind: kind as "lever", handle },
             collectionName: process.env.SPIKE_COLLECTION ?? "Jobs",
             publishMode: (process.env.SPIKE_PUBLISH_MODE ?? "sync-only") as PublishMode,
-        }).then(
+        })).then(
             report => console.log("spike: ok", JSON.stringify(report), `${Date.now() - started} ms`),
             err => console.log("spike: failed", err?.name, err?.code ?? "", err?.message)
-        )
+        ).then(() => (probing ? probe(projectUrl, apiKey).then(log("after"), log("after failed")) : undefined))
     }
 }
