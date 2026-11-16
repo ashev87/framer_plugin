@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Thank you | SyncRoles</title>
+<meta name="robots" content="noindex">
+<link rel="stylesheet" href="/styles.css">
+<script defer src="https://www.ship-or-die.com/hackathon/verify.js" data-site="346110dbd3385859158d3ab6a95b048164640591"></script>
+</head>
+<body>
+<header><a class="logo" href="/">SyncRoles</a><a href="/#pricing">Pricing</a></header>
+<main>
+<h1>Thank you. Here is your licence key.</h1>
+<p class="lead" id="status">Fetching your licence…</p>
+<p class="key" id="key" hidden></p>
+<h2>Activate hourly sync</h2>
+<ol>
+<li>Open the SyncRoles plugin in your Framer project.</li>
+<li>Paste the key into <strong>Licence key</strong> and click <strong>Activate hourly sync</strong>.</li>
+</ol>
+<p class="muted">Keep this key somewhere safe. It is also the proof of purchase if you ever need help: write to <a href="mailto:info@smartprocesslab.de">info@smartprocesslab.de</a>.</p>
+</main>
+<footer><span>© 2026 SyncRoles</span><a href="/docs">Setup guide</a><a href="/privacy">Privacy</a><a href="/impressum">Impressum</a></footer>
+<script>
+(async () => {
+  const status = document.getElementById("status"), key = document.getElementById("key")
+  const id = new URLSearchParams(location.search).get("session_id")
+  for (let attempt = 0; attempt < 6; attempt++) {
+    try {
+      const res = await fetch("/api/licence?session_id=" + encodeURIComponent(id || ""))
+      const json = await res.json()
+      if (res.ok) {
+        status.textContent = json.plan === "agency" ? "Valid for five sites, for one year." : "Valid for one site, for one year."
+        key.textContent = json.key; key.hidden = false
+        return
+      }
+      status.textContent = json.error
+    } catch { status.textContent = "Could not load your licence. Reload this page." }
+    await new Promise(r => setTimeout(r, 2500))
+  }
+})()
+</script>
+</body>
+</html>

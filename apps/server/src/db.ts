@@ -52,5 +52,6 @@ export async function migrate(db: Db): Promise<void> {
             message text
         );
         create index if not exists runs_site_idx on runs (site_id, id desc);
+        alter table licences add column if not exists stripe_payment_intent text;
     `)
 }

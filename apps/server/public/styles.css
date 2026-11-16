@@ -18,3 +18,9 @@ h2 { font-size:26px; letter-spacing:-.02em; margin:64px 0 14px; }
 .price small { font-size:15px; font-weight:400; color:var(--muted); }
 .plan ul { padding-left:18px; margin:10px 0 0; color:var(--muted); }
 footer { margin-top:80px; padding-top:24px; padding-bottom:40px; border-top:1px solid var(--line); font-size:15px; color:var(--muted); display:flex; gap:18px; flex-wrap:wrap; }
+.buy { display:inline-block; margin-top:16px; padding:10px 16px; border-radius:10px; background:var(--accent); color:#fff; text-decoration:none; font-weight:600; font-size:15px; }
+@media (prefers-color-scheme: dark) { .buy { color:#0b1020; } }
+.key { font:600 22px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace; padding:16px 20px; background:var(--card); border:1px solid var(--line); border-radius:12px; user-select:all; overflow-wrap:anywhere; }
+code { font:14px ui-monospace,SFMono-Regular,Menlo,monospace; background:var(--card); border:1px solid var(--line); border-radius:6px; padding:1px 6px; }
+main ol, main ul:not(.grid) { padding-left:22px; }
+main li { margin:6px 0; }

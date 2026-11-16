@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Setup guide | SyncRoles</title>
+<meta name="description" content="Connect Lever, Greenhouse, Ashby or Personio to your Framer careers page with SyncRoles.">
+<link rel="stylesheet" href="/styles.css">
+<script defer src="https://www.ship-or-die.com/hackathon/verify.js" data-site="346110dbd3385859158d3ab6a95b048164640591"></script>
+</head>
+<body>
+<header><a class="logo" href="/">SyncRoles</a><a href="/#pricing">Pricing</a></header>
+<main>
+<h1>Setup guide</h1>
+<p class="lead">About five minutes, once per Framer project.</p>
+
+<h2>1. Find your company handle</h2>
+<ul>
+<li><strong>Lever:</strong> the last part of <code>jobs.lever.co/your-handle</code>. Tick "hosted in the EU" if your board is on <code>jobs.eu.lever.co</code>.</li>
+<li><strong>Greenhouse:</strong> the last part of <code>boards.greenhouse.io/your-handle</code>.</li>
+<li><strong>Ashby:</strong> the last part of <code>jobs.ashbyhq.com/your-handle</code>.</li>
+<li><strong>Personio:</strong> the first part of <code>your-handle.jobs.personio.de</code>. The XML feed must be switched on in Personio under Settings › Recruiting › Career page.</li>
+</ul>
+
+<h2>2. Create a Framer Server API key</h2>
+<ol>
+<li>Open your project in Framer and go to <strong>Site Settings › General</strong>.</li>
+<li>Under <strong>API keys</strong>, create a new key and copy it.</li>
+</ol>
+<p class="muted">The key belongs to this one project. SyncRoles stores it encrypted and you can delete it from the plugin at any time, which stops all syncing.</p>
+
+<h2>3. Connect in the plugin</h2>
+<ol>
+<li>Open SyncRoles from the Plugins menu, choose your hiring tool, enter the handle and click <strong>Find jobs</strong>.</li>
+<li>Paste your project URL (the address in your browser while the project is open) and the API key.</li>
+<li>Choose how publishing should work, then click <strong>Create Jobs collection and sync</strong>.</li>
+</ol>
+<p>SyncRoles creates a CMS collection called <strong>Jobs</strong> with title, department, location, employment type, description, apply link and publish date. Build your careers page from it like any other CMS collection.</p>
+
+<h2>Publishing</h2>
+<p>Publishing in Framer always publishes the whole project. That is why you choose:</p>
+<ul>
+<li><strong>I publish myself:</strong> jobs are updated in the CMS and go live the next time you publish.</li>
+<li><strong>Publish when only jobs changed:</strong> SyncRoles publishes after a sync, unless the project already had unpublished page changes.</li>
+<li><strong>Always publish:</strong> publishes after every sync that changed something, including any unfinished design work.</li>
+</ul>
+
+<h2>If something goes wrong</h2>
+<p>If your job board cannot be reached or suddenly returns no jobs at all, SyncRoles changes nothing and records the failure in the run log inside the plugin. Questions: <a href="mailto:info@smartprocesslab.de">info@smartprocesslab.de</a>.</p>
+</main>
+<footer><span>© 2026 SyncRoles</span><a href="/docs">Setup guide</a><a href="/privacy">Privacy</a><a href="/impressum">Impressum</a></footer>
+</body>
+</html>

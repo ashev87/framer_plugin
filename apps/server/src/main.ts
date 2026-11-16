@@ -6,6 +6,7 @@ import { migrate, openDb } from "./db.js"
 import { syncToFramer } from "./framer.js"
 import { probe } from "./probe.js"
 import { startScheduler } from "./scheduler.js"
+import { createBilling } from "./stripe.js"
 
 const port = Number(process.env.PORT ?? 3000)
 const app = new Hono()
@@ -17,6 +18,8 @@ const PAGES: Record<string, { file: string; type: string }> = {
     "/": { file: "index.html", type: "text/html; charset=utf-8" },
     "/privacy": { file: "privacy.html", type: "text/html; charset=utf-8" },
     "/impressum": { file: "impressum.html", type: "text/html; charset=utf-8" },
+    "/thanks": { file: "thanks.html", type: "text/html; charset=utf-8" },
+    "/docs": { file: "docs.html", type: "text/html; charset=utf-8" },
     "/styles.css": { file: "styles.css", type: "text/css; charset=utf-8" },
 }
 for (const [path, page] of Object.entries(PAGES)) {
@@ -37,6 +40,15 @@ if (databaseUrl) {
     app.route("/api", createApi({ db, framer }))
     startScheduler(db, framer)
     console.log("api and scheduler started")
+    const { STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET } = process.env
+    if (STRIPE_SECRET_KEY && STRIPE_WEBHOOK_SECRET) {
+        const siteUrl = process.env.SITE_URL ?? "https://syncroles.com"
+        app.route("/", createBilling(db, { secretKey: STRIPE_SECRET_KEY, webhookSecret: STRIPE_WEBHOOK_SECRET, siteUrl }))
+        console.log("billing started")
+    } else {
+        app.get("/buy", c => c.text("Checkout opens this week. Please come back soon.", 503))
+        console.log("STRIPE_SECRET_KEY / STRIPE_WEBHOOK_SECRET not set: checkout is off")
+    }
 } else {
     console.log("DATABASE_URL not set: serving the website only")
 }
