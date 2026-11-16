@@ -2,11 +2,18 @@
   "name": "careers-sync",
   "private": true,
   "type": "module",
-  "workspaces": ["packages/*", "apps/*"],
-  "engines": { "node": ">=22" },
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "test": "vitest run",
-    "typecheck": "tsc -b packages/core apps/server"
+    "typecheck": "tsc -b packages/core apps/server",
+    "build": "tsc -b packages/core apps/server",
+    "start": "node apps/server/dist/main.js"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
