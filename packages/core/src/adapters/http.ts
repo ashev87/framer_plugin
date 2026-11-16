@@ -7,7 +7,7 @@ export async function getText(url: string, kind: SourceKind, fetchImpl: typeof f
     let res: Response
     try {
         res = await fetchImpl(url, {
-            headers: { accept, "user-agent": "careers-sync/0.1" },
+            headers: { accept, "user-agent": "syncroles/0.1" },
             signal: AbortSignal.timeout(TIMEOUT_MS),
             redirect: "follow",
         })

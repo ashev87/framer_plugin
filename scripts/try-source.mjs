@@ -1,6 +1,6 @@
 // Usage: node scripts/try-source.mjs <lever|greenhouse|ashby|personio> <handle> [key=value ...]
 // Prints what a source returns, for checking a customer's board by hand.
-import { listJobs } from "@careers-sync/core"
+import { listJobs } from "@syncroles/core"
 
 const [kind, handle, ...rest] = process.argv.slice(2)
 if (!kind || !handle) {

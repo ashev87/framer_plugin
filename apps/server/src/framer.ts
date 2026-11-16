@@ -8,7 +8,7 @@ import {
     type Job,
     type SourceConfig,
     type SyncResult,
-} from "@careers-sync/core"
+} from "@syncroles/core"
 import { connect, isRetryableError, type Framer, type ManagedCollection, type ManagedCollectionFieldInput } from "framer-api"
 
 /**
