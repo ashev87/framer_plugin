@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Privacy | SyncRoles</title>
+<link rel="stylesheet" href="/styles.css">
+<script defer src="https://www.ship-or-die.com/hackathon/verify.js" data-site="346110dbd3385859158d3ab6a95b048164640591"></script>
+</head>
+<body>
+<header><a class="logo" href="/">SyncRoles</a><a href="/#pricing">Pricing</a></header>
+<main>
+<h1>Privacy</h1>
+<p class="lead">What SyncRoles stores, why, and how to remove it.</p>
+
+<h2>What we store when you use SyncRoles</h2>
+<ul>
+<li><strong>Your Framer project URL and Server API key.</strong> The key is needed to write jobs into your CMS on a schedule. It is encrypted before it is saved (AES-256-GCM), is never written to logs, and you can delete it at any time, which stops all syncing.</li>
+<li><strong>Your job board and company handle</strong>, for example "Lever, acme". SyncRoles only reads the public job feed of that board.</li>
+<li><strong>A log of sync runs:</strong> time, number of jobs created, updated and removed, and any error.</li>
+<li><strong>Licence and payment status.</strong> Payments are handled by Stripe; we do not see or store card details.</li>
+</ul>
+<p>We do not store the content of your Framer site, and we do not handle applicant data: applications go to your hiring tool through its own apply links.</p>
+
+<h2>This website</h2>
+<p>This site loads a traffic verification script from ship-or-die.com, required by the $100K Hackathon that SyncRoles takes part in. For each page view it sends the page path, the referring site, campaign parameters (utm_source, utm_medium) and whether the visit came from a paid ad click. It sets no cookies and stores no identifier in your browser. It does not run if your browser sends the Global Privacy Control signal.</p>
+
+<h2>Service providers</h2>
+<p>Hosting and database: Railway. Payments: Stripe. Sync target: Framer, through its Server API.</p>
+</main>
+<footer><span>© 2026 SyncRoles</span><a href="/privacy">Privacy</a></footer>
+</body>
+</html>
