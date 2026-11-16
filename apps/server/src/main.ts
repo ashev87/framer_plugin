@@ -8,6 +8,7 @@ const port = Number(process.env.PORT ?? 3000)
 const PAGES: Record<string, { file: string; type: string }> = {
     "/": { file: "index.html", type: "text/html; charset=utf-8" },
     "/privacy": { file: "privacy.html", type: "text/html; charset=utf-8" },
+    "/impressum": { file: "impressum.html", type: "text/html; charset=utf-8" },
     "/styles.css": { file: "styles.css", type: "text/css; charset=utf-8" },
 }
 
