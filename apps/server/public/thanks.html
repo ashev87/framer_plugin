@@ -13,7 +13,10 @@
 <main>
 <h1>Thank you. Here is your licence key.</h1>
 <p class="lead" id="status">Fetching your licence…</p>
-<p class="key" id="key" hidden></p>
+<div class="keyrow" id="keyrow" hidden>
+<p class="key" id="key"></p>
+<button class="buy" id="copy" type="button">Copy key</button>
+</div>
 <h2>Activate hourly sync</h2>
 <ol>
 <li>Open the SyncRoles plugin in your Framer project.</li>
@@ -23,7 +26,14 @@
 </main>
 <footer><span>© 2026 SyncRoles</span><a href="/docs">Setup guide</a><a href="/privacy">Privacy</a><a href="/impressum">Impressum</a></footer>
 <script>
-(async () => {
+document.getElementById("copy").addEventListener("click", async e => {
+  const text = document.getElementById("key").textContent
+  try { await navigator.clipboard.writeText(text) }
+  catch { const r = document.createRange(); r.selectNodeContents(document.getElementById("key")); const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r); document.execCommand("copy") }
+  e.target.textContent = "Copied"
+  setTimeout(() => (e.target.textContent = "Copy key"), 2000)
+})
+;(async () => {
   const status = document.getElementById("status"), key = document.getElementById("key")
   const id = new URLSearchParams(location.search).get("session_id")
   for (let attempt = 0; attempt < 6; attempt++) {
@@ -32,7 +42,7 @@
       const json = await res.json()
       if (res.ok) {
         status.textContent = json.plan === "agency" ? "Valid for five sites. Renews yearly until you cancel." : "Valid for one site. Renews yearly until you cancel."
-        key.textContent = json.key; key.hidden = false
+        key.textContent = json.key; document.getElementById("keyrow").hidden = false
         return
       }
       status.textContent = json.error

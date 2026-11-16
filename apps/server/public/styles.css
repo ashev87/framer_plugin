@@ -24,3 +24,7 @@ footer { margin-top:80px; padding-top:24px; padding-bottom:40px; border-top:1px 
 code { font:14px ui-monospace,SFMono-Regular,Menlo,monospace; background:var(--card); border:1px solid var(--line); border-radius:6px; padding:1px 6px; }
 main ol, main ul:not(.grid) { padding-left:22px; }
 main li { margin:6px 0; }
+.keyrow { display:flex; gap:12px; align-items:stretch; flex-wrap:wrap; }
+.keyrow[hidden] { display:none; }
+.keyrow .key { flex:1 1 280px; margin:0; }
+.keyrow .buy { margin:0; border:0; cursor:pointer; font:inherit; font-weight:600; }
