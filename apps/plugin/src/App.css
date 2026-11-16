@@ -1,0 +1,17 @@
+main { display:flex; flex-direction:column; gap:10px; padding:0 15px 15px; height:100%; overflow-y:auto; }
+h1 { font-size:13px; font-weight:600; margin:6px 0 0; }
+p, li, label, small { font-size:12px; line-height:1.5; color:var(--framer-color-text-secondary); margin:0; }
+label { display:flex; flex-direction:column; gap:4px; }
+label.row { flex-direction:row; align-items:flex-start; gap:8px; color:var(--framer-color-text); }
+label.row small { display:block; }
+input[type="text"], input[type="password"], select { width:100%; }
+.error { color:#e5484d; }
+.ok { color:#2b9a66; }
+.jobs { list-style:none; padding:0; margin:0; border:1px solid var(--framer-color-divider); border-radius:8px; max-height:150px; overflow-y:auto; }
+.jobs li { padding:6px 10px; border-bottom:1px solid var(--framer-color-divider); color:var(--framer-color-text); }
+.jobs li:last-child { border-bottom:0; }
+.jobs small { display:block; }
+.card { border:1px solid var(--framer-color-divider); border-radius:8px; padding:10px; display:flex; flex-direction:column; gap:6px; }
+.spacer { flex:1; }
+button.link { background:none; color:var(--framer-color-tint); padding:0; height:auto; width:auto; text-align:left; font-size:12px; }
+ol { padding-left:16px; margin:0; }
