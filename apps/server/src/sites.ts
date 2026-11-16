@@ -15,10 +15,16 @@ export interface FramerGateway {
 export class InputError extends Error {}
 
 export function parseProjectId(projectUrl: string): string {
-    const match = /\/projects\/(?:[^/?#]*--)?([A-Za-z0-9]{20})(?:[-/?#]|$)/.exec(projectUrl.trim())
-    const bare = /^[A-Za-z0-9]{20}$/.exec(projectUrl.trim())
-    const id = match?.[1] ?? bare?.[0]
-    if (!id) throw new InputError("That does not look like a Framer project URL. Copy it from the browser while the project is open.")
+    const input = projectUrl.trim()
+    // From a URL: /projects/<Name>--<id>[-<suffix>]. From the plugin: the id, possibly with the same suffix.
+    const match = /\/projects\/(?:[^/?#]*--)?([A-Za-z0-9]{20})(?:[-/?#]|$)/.exec(input)
+    const bare = /^([A-Za-z0-9]{20})(?:-[A-Za-z0-9]+)?$/.exec(input)
+    const id = match?.[1] ?? bare?.[1]
+    if (!id) {
+        // Shape only, to learn what Framer hands the plugin; a project id is not a secret but need not be logged whole.
+        console.log(`unrecognised project reference: length=${input.length} shape=${input.replace(/[A-Za-z]/g, "a").replace(/[0-9]/g, "9").slice(0, 80)}`)
+        throw new InputError("PROJECT_URL_NEEDED: Paste this project's URL from your browser's address bar.")
+    }
     return id
 }
 

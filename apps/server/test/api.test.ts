@@ -22,6 +22,7 @@ describe("parseProjectId", () => {
         expect(parseProjectId(PROJECT)).toBe("JwKMyFUt3eTD4s4alfcM")
         expect(parseProjectId("https://framer.com/projects/JwKMyFUt3eTD4s4alfcM")).toBe("JwKMyFUt3eTD4s4alfcM")
         expect(parseProjectId("JwKMyFUt3eTD4s4alfcM")).toBe("JwKMyFUt3eTD4s4alfcM")
+        expect(parseProjectId("JwKMyFUt3eTD4s4alfcM-1zmRL")).toBe("JwKMyFUt3eTD4s4alfcM")
         expect(() => parseProjectId("https://example.com")).toThrow()
     })
 })
