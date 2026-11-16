@@ -55,6 +55,30 @@ describe("lever", () => {
     })
 })
 
+describe("retries", () => {
+    it("retries a server error and a dropped connection, then succeeds", async () => {
+        let n = 0
+        const flaky = (async () => {
+            n++
+            if (n === 1) return new Response("", { status: 503 })
+            if (n === 2) throw new TypeError("fetch failed")
+            return new Response("[]")
+        }) as typeof fetch
+        expect(await listJobs({ kind: "lever", handle: "acme" }, flaky)).toEqual([])
+        expect(n).toBe(3)
+    })
+    it("gives up after three attempts and does not retry a 404", async () => {
+        let n = 0
+        const down = (async () => (n++, new Response("", { status: 502 }))) as typeof fetch
+        await expect(listJobs({ kind: "lever", handle: "acme" }, down)).rejects.toThrow(/HTTP 502/)
+        expect(n).toBe(3)
+        n = 0
+        const missing = (async () => (n++, new Response("", { status: 404 }))) as typeof fetch
+        await expect(listJobs({ kind: "lever", handle: "acme" }, missing)).rejects.toBeInstanceOf(SourceError)
+        expect(n).toBe(1)
+    })
+})
+
 describe("greenhouse", () => {
     const item = {
         id: 127817,

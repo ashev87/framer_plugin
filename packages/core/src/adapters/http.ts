@@ -1,22 +1,44 @@
 import { SourceError, type SourceKind } from "../job.js"
 
-const TIMEOUT_MS = 20_000
+const TIMEOUT_MS = 10_000
+const ATTEMPTS = 3
 
-/** GET a public feed. Any non-2xx, timeout or network error becomes a SourceError. */
+/**
+ * GET a public feed. Timeouts, network errors and 5xx answers are retried;
+ * whatever is left becomes a SourceError.
+ */
 export async function getText(url: string, kind: SourceKind, fetchImpl: typeof fetch, accept: string): Promise<string> {
-    let res: Response
-    try {
-        res = await fetchImpl(url, {
-            headers: { accept, "user-agent": "syncroles/0.1" },
-            signal: AbortSignal.timeout(TIMEOUT_MS),
-            redirect: "follow",
-        })
-    } catch (err) {
-        throw new SourceError(`Could not reach ${kind}: ${(err as Error).message}`, kind)
+    let last: SourceError | null = null
+    for (let attempt = 1; attempt <= ATTEMPTS; attempt++) {
+        if (attempt > 1) await new Promise(r => setTimeout(r, 500 * attempt))
+        let res: Response
+        try {
+            res = await fetchImpl(url, {
+                headers: { accept, "user-agent": "syncroles/0.1 (+https://syncroles.com)" },
+                signal: AbortSignal.timeout(TIMEOUT_MS),
+                redirect: "follow",
+            })
+        } catch (err) {
+            const timedOut = (err as Error).name === "TimeoutError"
+            last = new SourceError(
+                timedOut ? `${kind} did not answer in time. Please try again in a minute.` : `Could not reach ${kind}. Please try again in a minute.`,
+                kind
+            )
+            continue
+        }
+        if (res.status === 404) throw new SourceError(`No ${kind} job board found for this handle.`, kind, 404)
+        if (res.status >= 500 || res.status === 429) {
+            last = new SourceError(`${kind} answered HTTP ${res.status}. Please try again in a minute.`, kind, res.status)
+            continue
+        }
+        if (!res.ok) throw new SourceError(`${kind} answered HTTP ${res.status}.`, kind, res.status)
+        try {
+            return await res.text()
+        } catch {
+            last = new SourceError(`${kind} stopped answering part-way. Please try again in a minute.`, kind)
+        }
     }
-    if (res.status === 404) throw new SourceError(`No ${kind} job board found for this handle.`, kind, 404)
-    if (!res.ok) throw new SourceError(`${kind} answered HTTP ${res.status}.`, kind, res.status)
-    return res.text()
+    throw last!
 }
 
 export async function getJson(url: string, kind: SourceKind, fetchImpl: typeof fetch): Promise<unknown> {
