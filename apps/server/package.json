@@ -3,6 +3,17 @@
   "version": "0.0.1",
   "private": true,
   "type": "module",
-  "scripts": { "build": "tsc -b" },
-  "dependencies": { "@syncroles/core": "*", "framer-api": "^5.1.0" }
+  "scripts": {
+    "build": "tsc -b"
+  },
+  "dependencies": {
+    "@hono/node-server": "^2.1.8",
+    "@syncroles/core": "*",
+    "framer-api": "^5.1.0",
+    "hono": "^4.13.19",
+    "pg": "^8.23.1"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.23.1"
+  }
 }

@@ -1,9 +1,16 @@
 import { readFile } from "node:fs/promises"
-import { createServer } from "node:http"
-import { syncToFramer, type PublishMode } from "./framer.js"
+import { serve } from "@hono/node-server"
+import { Hono } from "hono"
+import { createApi } from "./api.js"
+import { migrate, openDb } from "./db.js"
+import { syncToFramer } from "./framer.js"
 import { probe } from "./probe.js"
+import { startScheduler } from "./scheduler.js"
 
 const port = Number(process.env.PORT ?? 3000)
+const app = new Hono()
+
+app.get("/health", c => c.json({ ok: true }))
 
 /** The public website: a fixed list, so no request path ever reaches the file system. */
 const PAGES: Record<string, { file: string; type: string }> = {
@@ -12,46 +19,34 @@ const PAGES: Record<string, { file: string; type: string }> = {
     "/impressum": { file: "impressum.html", type: "text/html; charset=utf-8" },
     "/styles.css": { file: "styles.css", type: "text/css; charset=utf-8" },
 }
+for (const [path, page] of Object.entries(PAGES)) {
+    app.get(path, async c => {
+        const body = await readFile(new URL(`../public/${page.file}`, import.meta.url))
+        return c.body(body, 200, { "content-type": page.type, "cache-control": "public, max-age=300" })
+    })
+}
 
-createServer((req, res) => {
-    if (req.url === "/health") {
-        res.writeHead(200, { "content-type": "application/json" }).end('{"ok":true}')
-        return
+const databaseUrl = process.env.DATABASE_URL
+if (databaseUrl) {
+    if (Buffer.from(process.env.SECRETS_KEY ?? "", "base64").length !== 32) {
+        console.log("WARNING: SECRETS_KEY is not set to 32 base64 bytes; connecting a project will fail until it is")
     }
-    const page = PAGES[(req.url ?? "/").split("?")[0] ?? "/"]
-    if (!page || (req.method !== "GET" && req.method !== "HEAD")) {
-        res.writeHead(404, { "content-type": "text/plain" }).end("Not found")
-        return
-    }
-    readFile(new URL(`../public/${page.file}`, import.meta.url)).then(
-        body => res.writeHead(200, { "content-type": page.type, "cache-control": "public, max-age=300" }).end(body),
-        () => res.writeHead(500).end()
+    const db = openDb(databaseUrl)
+    await migrate(db)
+    const framer = { sync: syncToFramer }
+    app.route("/api", createApi({ db, framer }))
+    startScheduler(db, framer)
+    console.log("api and scheduler started")
+} else {
+    console.log("DATABASE_URL not set: serving the website only")
+}
+
+serve({ fetch: app.fetch, port }, () => console.log(`listening on ${port}`))
+
+// Diagnostic, read-only: with PROBE=1, log what Framer reports about the test project's unpublished state.
+if (process.env.PROBE === "1" && process.env.FRAMER_PROJECT_URL && process.env.FRAMER_API_KEY) {
+    probe(process.env.FRAMER_PROJECT_URL, process.env.FRAMER_API_KEY).then(
+        r => console.log("probe:", JSON.stringify(r)),
+        err => console.log("probe failed:", err?.name, err?.code ?? "")
     )
-}).listen(port, () => console.log(`listening on ${port}`))
-
-// Temporary spike runner, removed once the real onboarding API exists:
-// with SPIKE_SOURCE=<kind>:<handle> set, run one sync at boot and log the report.
-const spike = process.env.SPIKE_SOURCE
-if (spike) {
-    const [kind, handle] = spike.split(":")
-    const projectUrl = process.env.FRAMER_PROJECT_URL
-    const apiKey = process.env.FRAMER_API_KEY
-    if (!kind || !handle || !projectUrl || !apiKey) {
-        console.log("spike: skipped, need SPIKE_SOURCE=<kind>:<handle>, FRAMER_PROJECT_URL and FRAMER_API_KEY")
-    } else {
-        const started = Date.now()
-        const log = (label: string) => (r: unknown) => console.log(`probe ${label}:`, JSON.stringify(r))
-        const probing = process.env.SPIKE_PROBE === "1"
-        const before = probing ? probe(projectUrl, apiKey).then(log("before"), log("before failed")) : Promise.resolve()
-        before.then(() => syncToFramer({
-            projectUrl,
-            apiKey,
-            source: { kind: kind as "lever", handle },
-            collectionName: process.env.SPIKE_COLLECTION ?? "Jobs",
-            publishMode: (process.env.SPIKE_PUBLISH_MODE ?? "sync-only") as PublishMode,
-        })).then(
-            report => console.log("spike: ok", JSON.stringify(report), `${Date.now() - started} ms`),
-            err => console.log("spike: failed", err?.name, err?.code ?? "", err?.message)
-        ).then(() => (probing ? probe(projectUrl, apiKey).then(log("after"), log("after failed")) : undefined))
-    }
 }
