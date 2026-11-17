@@ -11,7 +11,7 @@ Source of the texts on syncroles.com. Change a text here and in `apps/server/pub
 ### Opening
 - H1: Your Framer careers page, in sync with your job board.
 - Text: SyncRoles copies open roles from Lever, Greenhouse, Ashby or Personio into your Framer CMS every 15 minutes. New roles appear, closed roles disappear, and nothing is published unless you chose it.
-- Buttons: See pricing / Read the setup guide
+- Buttons: Get the plugin (Marketplace listing) / See pricing
 - Fact line: Framer plugin · manual sync is free · automatic sync from $99 a year
 
 ### Built for job boards, so there is nothing to configure.

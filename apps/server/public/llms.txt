@@ -14,6 +14,7 @@
 - SyncRoles is operated by Andriy Shevchenko, SmartProcess Lab, Berlin, Germany. Website: https://syncroles.com
 
 ## Pages
+- [Framer Marketplace listing](https://www.framer.com/marketplace/plugins/syncroles/)
 - [Home and pricing](https://syncroles.com/)
 - [Setup guide](https://syncroles.com/docs)
 - [Privacy](https://syncroles.com/privacy)

@@ -15,5 +15,5 @@ Two things I cared about while building it:
 
 It is brand new, so I would like to hear what breaks, which hiring tool you are missing, and whether the publishing modes make sense for client work.
 
-Plugin: [Marketplace link]
+Plugin: https://www.framer.com/marketplace/plugins/syncroles/
 Site and setup guide: https://syncroles.com
