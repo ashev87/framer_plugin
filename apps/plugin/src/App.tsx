@@ -216,7 +216,7 @@ function Status({ id, token, onGone }: { id: string; token: string; onGone: () =
             </h1>
             <div className="card">
                 <p>
-                    {site.scheduled ? "Syncing automatically every hour." : "Manual sync. Add a licence to sync every hour."}
+                    {site.scheduled ? "Syncing automatically every 15 minutes." : "Manual sync. Add a licence to sync automatically every 15 minutes."}
                 </p>
                 {last && (
                     <p className={last.status === "failed" ? "error" : undefined}>
@@ -248,10 +248,10 @@ function Status({ id, token, onGone }: { id: string; token: string; onGone: () =
                     Licence key
                     <input type="text" value={licenceKey} onChange={e => setLicenceKey(e.target.value)} />
                     <button disabled={busy || !licenceKey.trim()} onClick={() => guard(async () => setSite((await api.licence(id, token, licenceKey)).site))}>
-                        Activate hourly sync
+                        Activate automatic sync
                     </button>
                     <small>
-                        Hourly sync is $99 per site per year at{" "}
+                        Automatic sync is $99 per site per year at{" "}
                         <a href="https://syncroles.com/#pricing" target="_blank" rel="noreferrer">
                             syncroles.com
                         </a>

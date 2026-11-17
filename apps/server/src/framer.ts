@@ -28,7 +28,7 @@ export const FIELDS: ManagedCollectionFieldInput[] = [
     { id: "description", name: "Description", type: "formattedText" },
     { id: "applyUrl", name: "Apply URL", type: "link" },
     { id: "publishedAt", name: "Published", type: "date" },
-    // Lets a run skip jobs that have not changed, so an idle hour leaves the project untouched.
+    // Lets a run skip jobs that have not changed, so an idle run leaves the project untouched.
     { id: "syncHash", name: "Sync Hash", type: "string" },
 ]
 

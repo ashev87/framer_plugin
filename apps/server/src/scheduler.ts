@@ -1,10 +1,10 @@
 import type { Db } from "./db.js"
 import { dueSites, runSite, type FramerGateway } from "./sites.js"
 
-const SYNC_INTERVAL_MINUTES = 60
-const TICK_MS = 5 * 60 * 1000
+const SYNC_INTERVAL_MINUTES = 15
+const TICK_MS = 60 * 1000
 
-/** Every few minutes, sync the licensed sites whose last run is an hour old. One at a time. */
+/** Every minute, sync the licensed sites whose last run is 15 minutes old. One at a time. */
 export function startScheduler(db: Db, framer: FramerGateway): () => void {
     let busy = false
     const tick = async () => {
