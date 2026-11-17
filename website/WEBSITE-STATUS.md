@@ -6,9 +6,9 @@ Status: ✅ done · 🔄 in progress · ⬜ open
 
 | Phase | Name | Status | Date |
 |---|---|---|---|
-| 0 | Set up | 🔄 | 2026-11-16 |
-| 1 | Foundation | ⬜ | |
-| 2 | Research | ⬜ | |
+| 0 | Set up | ✅ | 2026-11-16 |
+| 1 | Foundation | ✅ | 2026-11-17 |
+| 2 | Research | 🔄 | 2026-11-17 |
 | 3 | Copy | ⬜ | |
 | 4 | Design direction | ⬜ | |
 | 5 | Build | ⬜ | |
@@ -42,11 +42,15 @@ Every decision by the person with a date, so it does not get discussed again.
 - 2026-11-16: Product name SyncRoles, domain syncroles.com.
 - 2026-11-16: Prices $99 per site per year and $249 per year for five sites, tax added on top, yearly auto-renewal. Free tier: manual sync.
 - 2026-11-16: Impressum and privacy contact use the SmartProcess Lab details (Andriy Shevchenko, Berlin).
+- 2026-11-17: Continue without impeccable; design directions and review are done by hand with screenshots.
+- 2026-11-17: Logo is concept B1 (three rows, the middle one shifted). Files in `logo/final/`. Colours follow from phase 2; the wordmark is set once the font is chosen.
+- 2026-11-17: Positioning and single primary visitor (the person who maintains the Framer site) as written in `PRODUCT.md`.
+- 2026-11-17: Design references are proposed by Claude, not supplied by the owner.
 - 2026-11-16: The hackathon traffic tracker script must stay in the `<head>` of every page and be described in the privacy page.
 
 ## Open questions for the person
 
-- impeccable (the design plugin this process relies on) could not be installed from the cloud session: the installer was blocked by the session's safety settings. Either allow it, or continue without it and rely on a manual design review.
+- Before launch: run Greenhouse, Ashby and Personio end to end through the plugin; the page may claim four tools only if all four work.
 
 ## Update procedure after launch
 
