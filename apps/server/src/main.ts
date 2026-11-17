@@ -62,6 +62,30 @@ if (databaseUrl) {
 
 serve({ fetch: app.fetch, port }, () => console.log(`listening on ${port}`))
 
+// One-off check before launch: SELFTEST_SOURCES="greenhouse:stripe,ashby:ashby" syncs each board into its own
+// "Test <kind>" collection of the test project (never publishes) and logs the result.
+const selftest = process.env.SELFTEST_SOURCES
+if (selftest && process.env.FRAMER_PROJECT_URL && process.env.FRAMER_API_KEY) {
+    void (async () => {
+        for (const pair of selftest.split(",")) {
+            const [kind, handle] = pair.trim().split(":")
+            const started = Date.now()
+            try {
+                const report = await syncToFramer({
+                    projectUrl: process.env.FRAMER_PROJECT_URL!,
+                    apiKey: process.env.FRAMER_API_KEY!,
+                    source: { kind: kind as "lever", handle: handle! },
+                    collectionName: `Test ${kind}`,
+                    publishMode: "sync-only",
+                })
+                console.log(`selftest ${pair}: ok ${JSON.stringify(report)} ${Date.now() - started} ms`)
+            } catch (err) {
+                console.log(`selftest ${pair}: failed ${(err as Error)?.name} ${(err as { code?: string })?.code ?? ""} ${(err as Error)?.message?.slice(0, 200)}`)
+            }
+        }
+    })()
+}
+
 // Diagnostic, read-only: with PROBE=1, log what Framer reports about the test project's unpublished state.
 if (process.env.PROBE === "1" && process.env.FRAMER_PROJECT_URL && process.env.FRAMER_API_KEY) {
     probe(process.env.FRAMER_PROJECT_URL, process.env.FRAMER_API_KEY).then(
