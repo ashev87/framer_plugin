@@ -4,9 +4,9 @@
 
 Hi all,
 
-I maintain Framer sites and kept running into the same chore: a role closes in the hiring tool and stays on the careers page until someone remembers to update it.
+Careers pages built in Framer tend to go stale: a role closes in the hiring tool and stays on the site until someone remembers to update it.
 
-So I built SyncRoles. You enter your company's job-board address, it creates a Jobs collection in the CMS, and you design the page from it. Syncing from the plugin with a click is free. With a licence it syncs every 15 minutes from a server, so nobody has to open Framer.
+I built SyncRoles for that. You enter your company's job-board address, it creates a Jobs collection in the CMS, and you design the page from it. Syncing from the plugin with a click is free. With a licence it syncs every 15 minutes from a server, so nobody has to open Framer.
 
 Two things I cared about while building it:
 
