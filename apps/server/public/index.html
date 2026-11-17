@@ -3,35 +3,78 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>SyncRoles: automatic job-board sync for Framer careers pages</title>
-<meta name="description" content="SyncRoles keeps your Framer careers page in sync with Lever, Greenhouse, Ashby or Personio. New jobs appear, closed jobs disappear, on a schedule.">
+<title>SyncRoles: Framer job board sync for Lever, Greenhouse, Ashby and Personio</title>
+<meta name="description" content="Keep your Framer careers page in sync with Lever, Greenhouse, Ashby or Personio. Automatic sync every 15 minutes, closed roles removed, publishing under your control.">
+
+<link rel="canonical" href="https://syncroles.com/">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="/fonts/geist.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/styles.css">
+<meta name="theme-color" content="#0E1014">
+<meta property="og:title" content="SyncRoles: your Framer careers page, in sync with your job board">
+<meta property="og:description" content="Open roles from Lever, Greenhouse, Ashby or Personio land in your Framer CMS every 15 minutes.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://syncroles.com/">
+<script type="application/ld+json">[{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "SyncRoles", "applicationCategory": "BusinessApplication", "operatingSystem": "Web", "url": "https://syncroles.com/", "description": "SyncRoles is a Framer plugin with a hosted service that keeps a Framer careers page in sync with Lever, Greenhouse, Ashby or Personio.", "offers": [{"@type": "Offer", "name": "Free", "price": "0", "priceCurrency": "USD"}, {"@type": "Offer", "name": "Auto-sync", "price": "99", "priceCurrency": "USD", "description": "One site, billed yearly, tax not included"}, {"@type": "Offer", "name": "Agency", "price": "249", "priceCurrency": "USD", "description": "Five sites, billed yearly, tax not included"}]}, {"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Does it keep syncing when Framer is closed?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. On a paid plan the sync runs on the SyncRoles server every 15 minutes. Nobody needs to have Framer or the plugin open. On the free plan you start each sync yourself from the plugin."}}, {"@type": "Question", "name": "What happens when a role is closed?", "acceptedAnswer": {"@type": "Answer", "text": "It is removed from the Jobs collection at the next sync. If the page is set to publish automatically, the role leaves the live site with that publish. Otherwise it leaves with your next publish."}}, {"@type": "Question", "name": "Can it publish my unfinished design work?", "acceptedAnswer": {"@type": "Answer", "text": "Only if you choose “Always publish”. Publishing in Framer always publishes the whole project. The default is that SyncRoles never publishes. With “Publish when only jobs changed”, SyncRoles asks Framer before each sync whether any page has unpublished changes, and if one does, it updates the jobs and leaves publishing to you."}}, {"@type": "Question", "name": "What if my job board is down or returns no jobs?", "acceptedAnswer": {"@type": "Answer", "text": "If the job board cannot be reached, nothing in your CMS changes. If it suddenly returns no jobs at all while your collection has some, SyncRoles stops and asks you to confirm in the plugin before it removes anything."}}, {"@type": "Question", "name": "Which fields do I get in the CMS?", "acceptedAnswer": {"@type": "Answer", "text": "Title, department, location, employment type, description, apply link and publish date. Greenhouse has no standard field for employment type, so that field stays empty unless your company added one."}}, {"@type": "Question", "name": "Do I design the careers page myself?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. SyncRoles fills a CMS collection called Jobs. You build the list and the detail page from it in Framer like from any other collection."}}, {"@type": "Question", "name": "What do I need from my hiring tool?", "acceptedAnswer": {"@type": "Answer", "text": "Only the address of your public job board, for example jobs.lever.co/your-company. No API key from Lever, Greenhouse, Ashby or Personio is needed. For Personio, the XML feed has to be switched on in its career page settings."}}, {"@type": "Question", "name": "What do you store?", "acceptedAnswer": {"@type": "Answer", "text": "Your Framer project address, your Framer Server API key in encrypted form, your job-board address and a log of sync runs. You can delete the key from the plugin at any time, which stops all syncing. Applications never pass through SyncRoles."}}, {"@type": "Question", "name": "What happens if I cancel?", "acceptedAnswer": {"@type": "Answer", "text": "Automatic sync stops at the end of the paid year and the site goes back to manual sync. The Jobs collection and everything in it stays in your project."}}]}]</script>
 <script defer src="https://www.ship-or-die.com/hackathon/verify.js" data-site="346110dbd3385859158d3ab6a95b048164640591"></script>
 </head>
 <body>
-<header><a class="logo" href="/">SyncRoles</a><a href="#pricing">Pricing</a></header>
+<header><a class="logo" href="/"><svg viewBox="0 0 48 48" fill="currentColor" aria-hidden="true"><rect x="7" y="9" width="27" height="8" rx="4"/><rect x="14" y="20" width="27" height="8" rx="4"/><rect x="7" y="31" width="27" height="8" rx="4"/></svg>SyncRoles</a><nav><a class="hide-s" href="/#how">How it works</a><a class="hide-s" href="/#publishing">Publishing</a><a href="/#pricing">Pricing</a><a href="/docs">Setup guide</a></nav></header>
 <main>
-<h1>Your Framer careers page, always in sync with your job board.</h1>
-<p class="lead">SyncRoles copies open roles from your hiring tool into the Framer CMS every 15 minutes. New jobs appear, closed jobs disappear, and nobody has to open Framer.</p>
-<p class="badge">Framer plugin launching this week</p>
+<h1>Your Framer careers page, in sync with your job board.</h1>
+<p class="lead">SyncRoles copies open roles from Lever, Greenhouse, Ashby or Personio into your Framer CMS every 15 minutes. New roles appear, closed roles disappear, and nothing is published unless you chose it.</p>
+<div class="cta"><a class="btn" href="#pricing">See pricing</a><a class="btn ghost" href="/docs">Read the setup guide</a></div>
+<p class="facts"><span>Framer plugin</span><span>manual sync is free</span><span>automatic sync from $99 a year</span></p>
 
-<h2>How it works</h2>
+<div class="panel" aria-label="Example of one sync run">
+<div class="panel-head"><b><span class="dot"></span>Jobs collection</b><span>last sync 14:15</span><span>next 14:30</span><span>1 added · 1 removed</span></div>
+<div class="role added"><span>Senior Product Designer</span><small>Design · Berlin</small><em>added</em></div>
+<div class="role"><span>Backend Engineer</span><small>Engineering · Remote</small><em>unchanged</em></div>
+<div class="role"><span>Account Executive</span><small>Sales · London</small><em>unchanged</em></div>
+<div class="role removed"><span>Office Manager</span><small>Operations · Munich</small><em>removed</em></div>
+</div>
+
+<h2>Built for job boards, so there is nothing to configure.</h2>
 <ul class="grid">
-<li><strong>1. Connect your job board</strong><span class="muted">Pick Lever, Greenhouse, Ashby or Personio and enter your company handle. You see the jobs it found before anything is written.</span></li>
-<li><strong>2. Connect your Framer project</strong><span class="muted">SyncRoles creates a Jobs collection in your CMS with title, department, location, description and apply link.</span></li>
-<li><strong>3. It stays current</strong><span class="muted">Every 15 minutes it adds new roles, updates changed ones and removes closed ones. If your job board is unreachable, nothing changes.</span></li>
+<li><h3>Your job-board address is the whole setup</h3><p>Type the company name from your Lever, Greenhouse, Ashby or Personio board. There is no API to connect on the hiring side and no fields to map.</p></li>
+<li><h3>It runs on our server</h3><p>The sync keeps going when Framer is closed and the laptop is off. You see every run in the plugin, with what was added, updated and removed.</p></li>
+<li><h3>An outage does not empty your page</h3><p>If the job board is unreachable, nothing changes. If it suddenly reports zero roles, SyncRoles stops and asks you first.</p></li>
 </ul>
 
-<h2>You decide what gets published</h2>
-<p class="muted">Publishing a Framer site publishes everything that is pending in the project, not only the jobs. So SyncRoles never publishes unless you chose it: keep publishing manual, publish only when the jobs are the only pending change, or publish after every sync.</p>
+<h2 id="how">How it works</h2>
+<ul class="grid">
+<li><span class="step">01</span><h3>Find your jobs</h3><p>Open the plugin, pick your hiring tool and enter your company's job-board name. You see the roles it found before anything is written.</p></li>
+<li><span class="step">02</span><h3>Connect the project</h3><p>Paste your project address and a Framer Server API key. SyncRoles creates a Jobs collection with title, department, location, description and apply link.</p></li>
+<li><span class="step">03</span><h3>Build the page once</h3><p>Design the careers list and the job page from the collection. From then on the content follows your job board.</p></li>
+</ul>
+
+<h2 id="publishing">You decide what gets published.</h2>
+<p class="lead">Publishing in Framer always publishes the whole project, including design work that is not finished. So SyncRoles never publishes on its own. You pick one of three modes, and you can change it at any time.</p>
+<div class="modes">
+<div class="mode"><div><h3>I publish myself</h3><span class="tag">default</span></div><p>Jobs are updated in the CMS. They go live the next time you publish the site.</p></div>
+<div class="mode"><div><h3>Publish when only jobs changed</h3></div><p>Before each sync, SyncRoles asks Framer whether any page has unpublished changes. If none does, it publishes after the sync. If one does, it updates the jobs, does not publish, and says so in the run log.</p></div>
+<div class="mode"><div><h3>Always publish</h3></div><p>Publishes after every sync that changed something. Choose this only for a project where nothing is ever left half done.</p></div>
+</div>
+
+<h2>Works with four hiring tools</h2>
+<div class="tools">
+<div class="tool"><h3>Lever</h3><span class="mono">jobs.lever.co/your-company</span></div>
+<div class="tool"><h3>Greenhouse</h3><span class="mono">boards.greenhouse.io/your-company</span></div>
+<div class="tool"><h3>Ashby</h3><span class="mono">jobs.ashbyhq.com/your-company</span></div>
+<div class="tool"><h3>Personio</h3><span class="mono">your-company.jobs.personio.de</span></div>
+</div>
+<p class="muted">SyncRoles reads the public job feed of your board. It needs no login to your hiring tool, and applications go straight to that tool through its own apply links.</p>
 
 <h2 id="pricing">Pricing</h2>
 <ul class="grid">
-<li class="plan"><strong>Free</strong><div class="price">$0</div><ul><li>Sync from the plugin with one click</li><li>All four job boards</li></ul></li>
-<li class="plan"><strong>Auto-sync</strong><div class="price">$99 <small>per site / year + tax</small></div><ul><li>Automatic sync every 15 minutes</li><li>Optional automatic publishing</li><li>Run log in the plugin</li></ul><a class="buy" href="/buy?plan=site">Buy Auto-sync</a></li>
-<li class="plan"><strong>Agency</strong><div class="price">$249 <small>per year + tax</small></div><ul><li>Everything in Auto-sync</li><li>Up to five sites</li></ul><a class="buy" href="/buy?plan=agency">Buy Agency</a></li>
+<li class="plan"><h3>Free</h3><div class="price">$0</div><ul><li>Sync from the plugin with one click</li><li>All four hiring tools</li><li>Run log in the plugin</li></ul></li>
+<li class="plan main"><h3>Auto-sync</h3><div class="price">$99 <small>per site, per year, plus tax</small></div><ul><li>Automatic sync every 15 minutes</li><li>Optional automatic publishing</li><li>Everything in Free</li></ul><a class="buy" href="/buy?plan=site">Buy Auto-sync</a></li>
+<li class="plan"><h3>Agency</h3><div class="price">$249 <small>per year, plus tax</small></div><ul><li>Automatic sync for up to five sites</li><li>One licence key for all of them</li><li>Everything in Auto-sync</li></ul><a class="buy" href="/buy?plan=agency">Buy Agency</a></li>
 </ul>
-<p class="muted">Paid plans renew yearly until cancelled. Prices exclude VAT or sales tax where it applies.</p>
+<p class="muted">Paid plans renew yearly until cancelled. Prices exclude VAT or sales tax where it applies. After payment you get a licence key to paste into the plugin.</p>
+
+<h2>Questions</h2>
+<div class="faq"><details><summary>Does it keep syncing when Framer is closed?</summary><p>Yes. On a paid plan the sync runs on the SyncRoles server every 15 minutes. Nobody needs to have Framer or the plugin open. On the free plan you start each sync yourself from the plugin.</p></details><details><summary>What happens when a role is closed?</summary><p>It is removed from the Jobs collection at the next sync. If the page is set to publish automatically, the role leaves the live site with that publish. Otherwise it leaves with your next publish.</p></details><details><summary>Can it publish my unfinished design work?</summary><p>Only if you choose “Always publish”. Publishing in Framer always publishes the whole project. The default is that SyncRoles never publishes. With “Publish when only jobs changed”, SyncRoles asks Framer before each sync whether any page has unpublished changes, and if one does, it updates the jobs and leaves publishing to you.</p></details><details><summary>What if my job board is down or returns no jobs?</summary><p>If the job board cannot be reached, nothing in your CMS changes. If it suddenly returns no jobs at all while your collection has some, SyncRoles stops and asks you to confirm in the plugin before it removes anything.</p></details><details><summary>Which fields do I get in the CMS?</summary><p>Title, department, location, employment type, description, apply link and publish date. Greenhouse has no standard field for employment type, so that field stays empty unless your company added one.</p></details><details><summary>Do I design the careers page myself?</summary><p>Yes. SyncRoles fills a CMS collection called Jobs. You build the list and the detail page from it in Framer like from any other collection.</p></details><details><summary>What do I need from my hiring tool?</summary><p>Only the address of your public job board, for example jobs.lever.co/your-company. No API key from Lever, Greenhouse, Ashby or Personio is needed. For Personio, the XML feed has to be switched on in its career page settings.</p></details><details><summary>What do you store?</summary><p>Your Framer project address, your Framer Server API key in encrypted form, your job-board address and a log of sync runs. You can delete the key from the plugin at any time, which stops all syncing. Applications never pass through SyncRoles.</p></details><details><summary>What happens if I cancel?</summary><p>Automatic sync stops at the end of the paid year and the site goes back to manual sync. The Jobs collection and everything in it stays in your project.</p></details></div>
 </main>
 <footer><span>© 2026 SyncRoles</span><a href="/docs">Setup guide</a><a href="/privacy">Privacy</a><a href="/impressum">Impressum</a><a href="https://www.ship-or-die.com/100k-hackathon">Part of the $100K Hackathon</a></footer>
 </body>

@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /thanks
+Disallow: /buy
+Disallow: /api/
+
+Sitemap: https://syncroles.com/sitemap.xml

@@ -21,6 +21,13 @@ const PAGES: Record<string, { file: string; type: string }> = {
     "/thanks": { file: "thanks.html", type: "text/html; charset=utf-8" },
     "/docs": { file: "docs.html", type: "text/html; charset=utf-8" },
     "/styles.css": { file: "styles.css", type: "text/css; charset=utf-8" },
+    "/favicon.svg": { file: "favicon.svg", type: "image/svg+xml" },
+    "/favicon.ico": { file: "favicon.svg", type: "image/svg+xml" },
+    "/fonts/geist.woff2": { file: "fonts/geist.woff2", type: "font/woff2" },
+    "/fonts/geist-mono.woff2": { file: "fonts/geist-mono.woff2", type: "font/woff2" },
+    "/robots.txt": { file: "robots.txt", type: "text/plain; charset=utf-8" },
+    "/sitemap.xml": { file: "sitemap.xml", type: "application/xml" },
+    "/llms.txt": { file: "llms.txt", type: "text/plain; charset=utf-8" },
 }
 for (const [path, page] of Object.entries(PAGES)) {
     app.get(path, async c => {

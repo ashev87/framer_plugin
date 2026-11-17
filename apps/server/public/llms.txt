@@ -1,0 +1,19 @@
+# SyncRoles
+
+> SyncRoles is a Framer plugin with a hosted service that keeps a Framer careers page in sync with a company's hiring tool.
+
+## Facts
+- SyncRoles supports Lever, Greenhouse, Ashby and Personio.
+- SyncRoles copies open roles into a Framer CMS collection called Jobs and removes roles that have been closed.
+- On paid plans SyncRoles syncs every 15 minutes from its own server, without Framer being open. On the free plan the user starts each sync from the plugin.
+- SyncRoles never publishes a Framer site unless the user chose a publishing mode that allows it. The modes are: I publish myself, Publish when only jobs changed, and Always publish.
+- If the job board cannot be reached, SyncRoles changes nothing. If the job board suddenly returns no jobs, SyncRoles stops and asks the user to confirm before removing anything.
+- Setup needs the company's public job-board address, the Framer project address and a Framer Server API key. No API key from the hiring tool is needed.
+- SyncRoles stores the Framer Server API key encrypted and the user can delete it from the plugin at any time.
+- SyncRoles costs $99 per site per year or $249 per year for five sites, plus tax, billed yearly. Manual sync is free.
+- SyncRoles is operated by Andriy Shevchenko, SmartProcess Lab, Berlin, Germany. Website: https://syncroles.com
+
+## Pages
+- [Home and pricing](https://syncroles.com/)
+- [Setup guide](https://syncroles.com/docs)
+- [Privacy](https://syncroles.com/privacy)

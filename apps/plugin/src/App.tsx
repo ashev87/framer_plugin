@@ -177,6 +177,9 @@ function Status({ id, token, onGone }: { id: string; token: string; onGone: () =
     const [busy, setBusy] = useState(false)
     const [error, setError] = useState<string | null>(null)
     const [licenceKey, setLicenceKey] = useState("")
+    const [editing, setEditing] = useState(false)
+    const [kind, setKind] = useState<SourceKind>("lever")
+    const [handle, setHandle] = useState("")
 
     const guard = useCallback(
         async (work: () => Promise<void>) => {
@@ -208,11 +211,64 @@ function Status({ id, token, onGone }: { id: string; token: string; onGone: () =
 
     if (!site) return <main>{error ? <p className="error">{error}</p> : <p>Loading…</p>}</main>
     const last = runs[0]
+    // The server refuses to empty the collection on its own; the customer has to say so.
+    const needsEmptyConfirm = last?.status === "failed" && (last.message ?? "").includes("returned 0 jobs")
+
+    if (editing) {
+        const next: Source = { kind, handle: handle.trim(), options: {} }
+        return (
+            <main>
+                <h1>Change job board</h1>
+                <p>The Jobs collection will follow the new board: its roles are added and the current ones are removed at the next sync.</p>
+                <label>
+                    Hiring tool
+                    <select value={kind} onChange={e => setKind(e.target.value as SourceKind)}>
+                        {SOURCES.map(s => (
+                            <option key={s.kind} value={s.kind}>
+                                {s.label}
+                            </option>
+                        ))}
+                    </select>
+                </label>
+                <label>
+                    Company handle
+                    <input type="text" value={handle} placeholder="acme" onChange={e => setHandle(e.target.value)} />
+                    <small>{SOURCES.find(s => s.kind === kind)!.hint}</small>
+                </label>
+                <div className="spacer" />
+                <div className="footer">
+                    {error && <p className="error">{error}</p>}
+                    <button
+                        className="framer-button-primary"
+                        disabled={busy || !handle.trim()}
+                        onClick={() =>
+                            guard(async () => {
+                                const found = await api.preview(next)
+                                if (found.count === 0) throw new ApiError("That board has no open jobs right now, so there is nothing to switch to.", 422)
+                                await api.setSource(id, token, next)
+                                await api.sync(id, token)
+                                setEditing(false)
+                                await refresh()
+                            })
+                        }
+                    >
+                        {busy ? "Working…" : "Switch and sync"}
+                    </button>
+                    <button disabled={busy} onClick={() => { setError(null); setEditing(false) }}>
+                        Cancel
+                    </button>
+                </div>
+            </main>
+        )
+    }
 
     return (
         <main>
             <h1>
-                {SOURCES.find(s => s.kind === site.source.kind)?.label} · {site.source.handle}
+                {SOURCES.find(s => s.kind === site.source.kind)?.label} · {site.source.handle}{" "}
+                <button className="link" disabled={busy} onClick={() => { setKind(site.source.kind); setHandle(""); setError(null); setEditing(true) }}>
+                    Change
+                </button>
             </h1>
             <div className="card">
                 <p>
@@ -228,6 +284,11 @@ function Status({ id, token, onGone }: { id: string; token: string; onGone: () =
             <button className="framer-button-primary" disabled={busy} onClick={() => guard(async () => { await api.sync(id, token); await refresh() })}>
                 {busy ? "Working…" : "Sync now"}
             </button>
+            {needsEmptyConfirm && (
+                <button disabled={busy} onClick={() => guard(async () => { await api.sync(id, token, true); await refresh() })}>
+                    All roles are closed: remove them
+                </button>
+            )}
             <label>
                 Publishing
                 <select
