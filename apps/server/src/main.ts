@@ -29,6 +29,8 @@ const PAGES: Record<string, { file: string; type: string }> = {
     "/robots.txt": { file: "robots.txt", type: "text/plain; charset=utf-8" },
     "/sitemap.xml": { file: "sitemap.xml", type: "application/xml" },
     "/llms.txt": { file: "llms.txt", type: "text/plain; charset=utf-8" },
+    "/media/syncroles-status.png": { file: "media/syncroles-status.png", type: "image/png" },
+    "/media/og.png": { file: "media/og.png", type: "image/png" },
 }
 for (const [path, page] of Object.entries(PAGES)) {
     app.get(path, async c => {
