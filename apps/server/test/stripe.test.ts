@@ -1,7 +1,7 @@
 import { createHmac } from "node:crypto"
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest"
 import { migrate, openDb, type Db } from "../src/db.js"
-import { createBilling, fulfil, verifyWebhook } from "../src/stripe.js"
+import { createBilling, fulfil, resendLicenceEmail, verifyWebhook } from "../src/stripe.js"
 
 const SECRET = "whsec_test"
 const sign = (payload: string, t = Math.floor(Date.now() / 1000)) =>
@@ -97,6 +97,19 @@ d("billing", () => {
         expect(rows[0].extended).toBe(true)
         await post({ type: "customer.subscription.deleted", data: { object: { id: "sub_cs_4" } } })
         expect((await db.query("select status from licences")).rows).toEqual([{ status: "expired" }])
+    })
+
+    it("emails a new licence once, and a failed email does not fail the purchase", async () => {
+        const sent: any[] = []
+        const send = resendLicenceEmail("re_test", "SyncRoles <licence@syncroles.com>", "https://syncroles.com",
+            (async (_u: any, init: any) => (sent.push(JSON.parse(init.body)), new Response("{}"))) as typeof fetch)
+        const key = await fulfil(db, paid("cs_6"), send)
+        await fulfil(db, paid("cs_6"), send)
+        expect(sent).toHaveLength(1)
+        expect(sent[0]).toMatchObject({ to: ["buyer@example.com"], subject: "Your SyncRoles licence key" })
+        expect(sent[0].text).toContain(key)
+        const broken = async () => { throw new Error("down") }
+        expect(await fulfil(db, paid("cs_7"), broken)).toMatch(/^SR-/)
     })
 
     it("opens the customer portal only for a real licence key", async () => {

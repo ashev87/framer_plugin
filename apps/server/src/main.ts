@@ -6,7 +6,7 @@ import { migrate, openDb } from "./db.js"
 import { syncToFramer } from "./framer.js"
 import { probe } from "./probe.js"
 import { startScheduler } from "./scheduler.js"
-import { createBilling, portalUrl, type StripeConfig } from "./stripe.js"
+import { createBilling, portalUrl, resendLicenceEmail, type StripeConfig } from "./stripe.js"
 
 const port = Number(process.env.PORT ?? 3000)
 const app = new Hono()
@@ -49,7 +49,10 @@ if (databaseUrl) {
     const billing: StripeConfig | null =
         STRIPE_SECRET_KEY && STRIPE_WEBHOOK_SECRET
             ? { secretKey: STRIPE_SECRET_KEY, webhookSecret: STRIPE_WEBHOOK_SECRET, siteUrl: process.env.SITE_URL ?? "https://syncroles.com",
-                portalConfiguration: process.env.STRIPE_PORTAL_CONFIGURATION || undefined }
+                portalConfiguration: process.env.STRIPE_PORTAL_CONFIGURATION || undefined,
+                sendLicenceEmail: process.env.RESEND_API_KEY
+                    ? resendLicenceEmail(process.env.RESEND_API_KEY, "SyncRoles <licence@syncroles.com>", process.env.SITE_URL ?? "https://syncroles.com")
+                    : undefined }
             : null
     app.route("/api", createApi({ db, framer, portal: billing ? siteId => portalUrl(db, billing, { siteId }) : undefined }))
     startScheduler(db, framer)

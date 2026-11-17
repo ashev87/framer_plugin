@@ -17,6 +17,8 @@ export interface StripeConfig {
     siteUrl: string
     /** Customer portal configuration to use; Stripe's default configuration when unset. */
     portalConfiguration?: string
+    /** Sends the licence key to the buyer; called once per new licence. */
+    sendLicenceEmail?: (to: string, key: string, plan: Plan) => Promise<void>
     fetchImpl?: typeof fetch
 }
 
@@ -49,18 +51,51 @@ function newLicenceKey(): string {
 }
 
 /** Turn a paid checkout session into a licence. Safe to call any number of times for the same session. */
-export async function fulfil(db: Db, session: any): Promise<string | null> {
+export async function fulfil(db: Db, session: any, onCreated?: (to: string, key: string, plan: Plan) => Promise<void>): Promise<string | null> {
     const plan = session?.metadata?.plan as Plan | undefined
     if (session?.payment_status !== "paid" || !plan || !(plan in PLANS)) return null
-    await db.query(
+    const email = session.customer_details?.email ?? null
+    const inserted = await db.query(
         `insert into licences (key, plan, max_sites, email, stripe_customer_id, stripe_session_id, stripe_subscription_id, expires_at)
          values ($1,$2,$3,$4,$5,$6,$7, now() + interval '1 year' + make_interval(days => $8))
-         on conflict (stripe_session_id) do nothing`,
-        [newLicenceKey(), plan, PLANS[plan].maxSites, session.customer_details?.email ?? null, session.customer ?? null, session.id,
-         session.subscription ?? null, GRACE_DAYS]
+         on conflict (stripe_session_id) do nothing
+         returning key`,
+        [newLicenceKey(), plan, PLANS[plan].maxSites, email, session.customer ?? null, session.id, session.subscription ?? null, GRACE_DAYS]
     )
+    const created = inserted.rows[0]?.key as string | undefined
+    if (created && email && onCreated) {
+        // The thank-you page already shows the key; a failed email must not fail the purchase.
+        await onCreated(email, created, plan).catch(err => console.error(`licence email failed ${(err as Error)?.name}`))
+    }
     const { rows } = await db.query(`select key from licences where stripe_session_id = $1 and status = 'active'`, [session.id])
     return rows[0]?.key ?? null
+}
+
+/** Licence email through Resend. */
+export function resendLicenceEmail(apiKey: string, from: string, siteUrl: string, fetchImpl: typeof fetch = fetch) {
+    return async (to: string, key: string, plan: Plan): Promise<void> => {
+        const scope = plan === "agency" ? "up to five sites" : "one site"
+        const text = [
+            "Thank you for buying SyncRoles.",
+            "",
+            `Your licence key: ${key}`,
+            `It is valid for ${scope} and renews yearly until you cancel.`,
+            "",
+            "To activate automatic sync, open the SyncRoles plugin in your Framer project, paste the key into Licence key and click Activate automatic sync.",
+            "",
+            `Setup guide: ${siteUrl}/docs`,
+            `Cancel, change your card or download invoices: ${siteUrl}/manage`,
+            "",
+            "Questions: reply to this email.",
+        ].join("\n")
+        const res = await fetchImpl("https://api.resend.com/emails", {
+            method: "POST",
+            headers: { authorization: `Bearer ${apiKey}`, "content-type": "application/json" },
+            body: JSON.stringify({ from, to: [to], reply_to: "info@smartprocesslab.de", subject: "Your SyncRoles licence key", text }),
+            signal: AbortSignal.timeout(10_000),
+        })
+        if (!res.ok) throw new Error(`Resend answered ${res.status}`)
+    }
 }
 
 /** A renewal invoice was paid: the licence runs until the end of the period it paid for. */
@@ -132,7 +167,7 @@ export function createBilling(db: Db, config: StripeConfig): Hono {
         const event = JSON.parse(payload)
         const object = event.data?.object
         if (event.type === "checkout.session.completed" || event.type === "checkout.session.async_payment_succeeded") {
-            await fulfil(db, object)
+            await fulfil(db, object, config.sendLicenceEmail)
         } else if (event.type === "invoice.paid") {
             await renew(db, object)
         } else if (event.type === "customer.subscription.deleted") {
@@ -166,7 +201,7 @@ export function createBilling(db: Db, config: StripeConfig): Hono {
         if (!/^cs_[A-Za-z0-9_]{10,200}$/.test(id)) return c.json({ error: "Unknown checkout session." }, 400)
         // Ask Stripe directly so the page works even if the webhook has not arrived yet.
         const session = await stripe(config, "GET", `/checkout/sessions/${id}`).catch(() => null)
-        const key = session ? await fulfil(db, session) : null
+        const key = session ? await fulfil(db, session, config.sendLicenceEmail) : null
         if (!key) return c.json({ error: "This payment is not completed yet. Reload in a moment." }, 404)
         return c.json({ key, plan: session.metadata.plan })
     })
