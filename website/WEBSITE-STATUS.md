@@ -27,13 +27,15 @@ Status: ✅ done · 🔄 in progress · ⬜ open
 
 | Role | Value |
 |---|---|
-| Main color | |
-| Accent | |
-| Light surface | |
-| Text | |
-| Headings | |
-| Body text | |
-| Distinguishing features | |
+| Main color | #0E1014 (page background, near-black) |
+| Accent | #8B9BFF (soft violet-blue; buttons with #0E1014 label, 7.5:1) |
+| Light surface | #161A21 (cards), borders #262B35 |
+| Text | #ECEDEE (16.2:1 on background), muted #9BA1AD (7.3:1) |
+| Headings | Geist, weight 650, letter-spacing -0.04em |
+| Body text | Geist 400; Geist Mono for facts (times, counts, addresses) |
+| Distinguishing features | The three-row logo mark as a recurring motif; a jobs panel with added / unchanged / removed rows; thin borders, no gradients or glow |
+
+Fonts are self-hosted from the `@fontsource-variable/geist` and `geist-mono` packages (SIL Open Font License), so no request goes to a font CDN.
 
 ## Decisions
 
@@ -46,10 +48,14 @@ Every decision by the person with a date, so it does not get discussed again.
 - 2026-11-17: Logo is concept B1 (three rows, the middle one shifted). Files in `logo/final/`. Colours follow from phase 2; the wordmark is set once the font is chosen.
 - 2026-11-17: Positioning and single primary visitor (the person who maintains the Framer site) as written in `PRODUCT.md`.
 - 2026-11-17: Design references are proposed by Claude, not supplied by the owner.
+- 2026-11-17: Design direction 2, "Midnight console" (dark, Geist, violet-blue accent). Notes in `references/notes.md`.
+- 2026-11-17: Positioning changed after research: SyncRoles is the sync built for job boards (see `PRODUCT.md`). The claims "Lever has no Framer plugin" and "nobody else syncs without Framer open" are dropped as untrue.
+- 2026-11-17: Paid sites sync every 15 minutes (was hourly). Price stays $99 per site per year.
 - 2026-11-16: The hackathon traffic tracker script must stay in the `<head>` of every page and be described in the privacy page.
 
 ## Open questions for the person
 
+- Before the page compares against the free job-board plugins: test hands-on whether they sync only on a click (their listings do not say "manual only").
 - Before launch: run Greenhouse, Ashby and Personio end to end through the plugin; the page may claim four tools only if all four work.
 
 ## Update procedure after launch
