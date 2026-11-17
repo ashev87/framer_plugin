@@ -42,6 +42,7 @@ d("billing", () => {
             secretKey: "sk_test_x", webhookSecret: SECRET, siteUrl: "https://syncroles.com",
             fetchImpl: (async (u: any, init: any) => {
                 requests.push({ url: String(u), body: String(init?.body ?? "") })
+                if (String(u).endsWith("/billing_portal/sessions")) return Response.json({ url: "https://billing.stripe.com/p/session/x" })
                 if (String(u).includes("/prices?")) return Response.json({ data: [{ id: "price_" + new URL(String(u)).searchParams.get("lookup_keys[]") }] })
                 if (String(u).endsWith("/checkout/sessions")) return Response.json({ url: "https://checkout.stripe.com/c/pay/x" })
                 if (String(u).includes("cs_test_paid1234567")) return Response.json(paid("cs_test_paid1234567", "agency"))
@@ -96,6 +97,17 @@ d("billing", () => {
         expect(rows[0].extended).toBe(true)
         await post({ type: "customer.subscription.deleted", data: { object: { id: "sub_cs_4" } } })
         expect((await db.query("select status from licences")).rows).toEqual([{ status: "expired" }])
+    })
+
+    it("opens the customer portal only for a real licence key", async () => {
+        const key = await fulfil(db, paid("cs_5"))
+        const form = (k: string) => app.request("/manage", { method: "POST", body: new URLSearchParams({ key: k }) })
+        const ok = await form(key!.toLowerCase())
+        expect(ok.status).toBe(303)
+        expect(ok.headers.get("location")).toBe("https://billing.stripe.com/p/session/x")
+        expect(new URLSearchParams(requests.at(-1)!.body).get("customer")).toBe("cus_cs_5")
+        expect((await form("SR-NOPE-NOPE-NOPE-NOPE")).headers.get("location")).toBe("/manage?error=1")
+        expect((await form("<script>")).headers.get("location")).toBe("/manage?error=1")
     })
 
     it("shows the licence on the thank-you page only for a paid session", async () => {

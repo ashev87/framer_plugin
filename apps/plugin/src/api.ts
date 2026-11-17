@@ -65,6 +65,7 @@ export const api = {
     setPublishMode: (id: string, token: string, publishMode: PublishMode) =>
         call<{ site: Site }>("PATCH", `/sites/${id}`, { publishMode }, token),
     setSource: (id: string, token: string, source: Source) => call<{ site: Site }>("PATCH", `/sites/${id}`, { source }, token),
+    portal: (id: string, token: string) => call<{ url: string }>("POST", `/sites/${id}/portal`, undefined, token),
     licence: (id: string, token: string, key: string) => call<{ site: Site }>("POST", `/sites/${id}/licence`, { key }, token),
     disconnect: (id: string, token: string) => call<{ deleted: true }>("DELETE", `/sites/${id}`, undefined, token),
 }

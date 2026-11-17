@@ -6,7 +6,7 @@ import { migrate, openDb } from "./db.js"
 import { syncToFramer } from "./framer.js"
 import { probe } from "./probe.js"
 import { startScheduler } from "./scheduler.js"
-import { createBilling } from "./stripe.js"
+import { createBilling, portalUrl, type StripeConfig } from "./stripe.js"
 
 const port = Number(process.env.PORT ?? 3000)
 const app = new Hono()
@@ -19,6 +19,7 @@ const PAGES: Record<string, { file: string; type: string }> = {
     "/privacy": { file: "privacy.html", type: "text/html; charset=utf-8" },
     "/impressum": { file: "impressum.html", type: "text/html; charset=utf-8" },
     "/thanks": { file: "thanks.html", type: "text/html; charset=utf-8" },
+    "/manage": { file: "manage.html", type: "text/html; charset=utf-8" },
     "/docs": { file: "docs.html", type: "text/html; charset=utf-8" },
     "/styles.css": { file: "styles.css", type: "text/css; charset=utf-8" },
     "/favicon.svg": { file: "favicon.svg", type: "image/svg+xml" },
@@ -44,13 +45,17 @@ if (databaseUrl) {
     const db = openDb(databaseUrl)
     await migrate(db)
     const framer = { sync: syncToFramer }
-    app.route("/api", createApi({ db, framer }))
+    const { STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET } = process.env
+    const billing: StripeConfig | null =
+        STRIPE_SECRET_KEY && STRIPE_WEBHOOK_SECRET
+            ? { secretKey: STRIPE_SECRET_KEY, webhookSecret: STRIPE_WEBHOOK_SECRET, siteUrl: process.env.SITE_URL ?? "https://syncroles.com",
+                portalConfiguration: process.env.STRIPE_PORTAL_CONFIGURATION || undefined }
+            : null
+    app.route("/api", createApi({ db, framer, portal: billing ? siteId => portalUrl(db, billing, { siteId }) : undefined }))
     startScheduler(db, framer)
     console.log("api and scheduler started")
-    const { STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET } = process.env
-    if (STRIPE_SECRET_KEY && STRIPE_WEBHOOK_SECRET) {
-        const siteUrl = process.env.SITE_URL ?? "https://syncroles.com"
-        app.route("/", createBilling(db, { secretKey: STRIPE_SECRET_KEY, webhookSecret: STRIPE_WEBHOOK_SECRET, siteUrl }))
+    if (billing) {
+        app.route("/", createBilling(db, billing))
         console.log("billing started")
     } else {
         app.get("/buy", c => c.text("Checkout opens this week. Please come back soon.", 503))

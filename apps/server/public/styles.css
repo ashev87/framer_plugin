@@ -80,3 +80,6 @@ footer a { color:var(--muted); }
   h2 { margin-top:72px; }
 }
 @media (prefers-reduced-motion:reduce) { html { scroll-behavior:auto; } }
+.error-msg { color:#FF8A8A; }
+input.key { color:var(--ink); font-size:17px; }
+input.key::placeholder { color:var(--muted); opacity:.6; }

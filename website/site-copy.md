@@ -77,4 +77,4 @@ The site has no form. Checkout is Stripe's page; the thank-you page shows the li
 ## 5. Open questions
 - The page says "Works with four hiring tools". Greenhouse, Ashby and Personio still have to be run once through the plugin before launch.
 - No comparison with other plugins is made on the page, because their sync behaviour has not been tested hands-on.
-- Cancelling: the page says what happens after cancelling but not how to cancel. There is no self-service portal yet; cancellations go through info@smartprocesslab.de.
+- Cancelling: self-service at syncroles.com/manage with the licence key (Stripe customer portal).

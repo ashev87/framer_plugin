@@ -304,6 +304,13 @@ function Status({ id, token, onGone }: { id: string; token: string; onGone: () =
                 </select>
                 <small>{MODES.find(m => m.mode === site.publishMode)?.detail}</small>
             </label>
+            {site.scheduled && (
+                <p>
+                    <button className="link" disabled={busy} onClick={() => guard(async () => { window.open((await api.portal(id, token)).url, "_blank") })}>
+                        Manage subscription
+                    </button>
+                </p>
+            )}
             {!site.scheduled && (
                 <label>
                     Licence key

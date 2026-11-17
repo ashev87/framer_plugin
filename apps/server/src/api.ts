@@ -21,6 +21,8 @@ import type { PublishMode } from "./framer.js"
 export interface ApiDeps {
     db: Db
     framer: FramerGateway
+    /** Customer portal link for a site's licence; absent while billing is off. */
+    portal?: (siteId: string) => Promise<string | null>
     listJobs?: (config: SourceConfig) => Promise<Job[]>
 }
 
@@ -132,6 +134,14 @@ export function createApi(deps: ApiDeps): Hono {
         if (typeof b?.key !== "string") throw new InputError("Enter your licence key.")
         await attachLicence(db, id, b.key)
         return c.json({ site: await getSite(db, id) })
+    })
+
+    api.post("/sites/:id/portal", async c => {
+        const id = await authed(c)
+        if (!id) return denied(c)
+        const url = deps.portal ? await deps.portal(id) : null
+        if (!url) throw new InputError("This site has no subscription to manage.")
+        return c.json({ url })
     })
 
     /** Deletes the stored key, settings and run log. */

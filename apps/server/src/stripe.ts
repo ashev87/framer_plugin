@@ -15,6 +15,8 @@ export interface StripeConfig {
     secretKey: string
     webhookSecret: string
     siteUrl: string
+    /** Customer portal configuration to use; Stripe's default configuration when unset. */
+    portalConfiguration?: string
     fetchImpl?: typeof fetch
 }
 
@@ -71,6 +73,21 @@ async function renew(db: Db, invoice: any): Promise<void> {
          where stripe_subscription_id = $1 and status <> 'refunded'`,
         [subscription, periodEnd, GRACE_DAYS]
     )
+}
+
+/** A Stripe customer portal link for the licence's customer, where they can cancel or update their card. */
+export async function portalUrl(db: Db, config: StripeConfig, where: { key: string } | { siteId: string }): Promise<string | null> {
+    const { rows } = "key" in where
+        ? await db.query(`select stripe_customer_id from licences where key = $1`, [where.key.trim().toUpperCase()])
+        : await db.query(`select l.stripe_customer_id from sites s join licences l on l.id = s.licence_id where s.id = $1`, [where.siteId])
+    const customer = rows[0]?.stripe_customer_id
+    if (typeof customer !== "string") return null
+    const session = await stripe(config, "POST", "/billing_portal/sessions", {
+        customer,
+        return_url: `${config.siteUrl}/`,
+        ...(config.portalConfiguration ? { configuration: config.portalConfiguration } : {}),
+    })
+    return session.url
 }
 
 export function createBilling(db: Db, config: StripeConfig): Hono {
@@ -132,6 +149,15 @@ export function createBilling(db: Db, config: StripeConfig): Hono {
             if (!rowCount) console.log("refund without a single matching licence: review in Stripe")
         }
         return c.json({ received: true })
+    })
+
+    /** Manage subscription: the licence key is the proof of ownership. */
+    app.post("/manage", async c => {
+        const form = await c.req.parseBody()
+        const key = typeof form.key === "string" ? form.key : ""
+        const url = /^SR-[A-Z0-9-]{10,40}$/i.test(key.trim()) ? await portalUrl(db, config, { key }) : null
+        if (!url) return c.redirect("/manage?error=1", 303)
+        return c.redirect(url, 303)
     })
 
     /** The thank-you page asks for its licence key. The session id in the URL is the secret. */
