@@ -60,7 +60,7 @@ d("api", () => {
             framer: { sync: async r => { calls.push(r); if (fail) throw fail; return okReport } },
             listJobs: async c => {
                 if (c.handle === "nope") throw new SourceError("No lever job board found for this handle.", "lever", 404)
-                return [{ id: "1", title: "Engineer", department: "Eng", location: "Berlin", employmentType: null, descriptionHtml: "", applyUrl: "https://x", publishedAt: null }]
+                return [{ id: "1", title: "Engineer", department: "Eng", team: null, location: "Berlin", employmentType: null, isRemote: null, compensation: null, descriptionHtml: "", jobUrl: "https://x", applyUrl: "https://x", publishedAt: null }]
             },
         })
     })

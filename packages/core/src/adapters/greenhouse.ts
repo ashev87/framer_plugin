@@ -1,6 +1,6 @@
 import { decodeHTML } from "entities"
 import { SourceError, type Job, type SourceAdapter } from "../job.js"
-import { getJson, isoDate, safeHandle, str } from "./http.js"
+import { getJson, isoDate, remoteFromLocation, safeHandle, str } from "./http.js"
 
 /** Greenhouse Job Board API. `content` arrives HTML-entity-escaped. */
 export const greenhouse: SourceAdapter = {
@@ -24,18 +24,24 @@ export const greenhouse: SourceAdapter = {
 function toJob(p: any): Job | null {
     const id = str(p?.id)
     const title = str(p?.title)
-    const applyUrl = str(p?.absolute_url)
-    if (!id || !title || !applyUrl) return null
+    const jobUrl = str(p?.absolute_url)
+    if (!id || !title || !jobUrl) return null
     const meta = Array.isArray(p.metadata) ? p.metadata : []
+    const location = str(p.location?.name)
     const employment = meta.find((m: any) => /employment|job type|commitment/i.test(m?.name ?? ""))
     return {
         id,
         title,
         department: str(p.departments?.[0]?.name),
-        location: str(p.location?.name),
+        team: null,
+        location,
         employmentType: str(employment?.value),
+        isRemote: remoteFromLocation(location),
+        compensation: null,
         descriptionHtml: decodeHTML(typeof p.content === "string" ? p.content : ""),
-        applyUrl,
+        jobUrl,
+        // Greenhouse shows the application form on the job page itself.
+        applyUrl: jobUrl,
         publishedAt: isoDate(p.first_published ?? p.updated_at),
     }
 }

@@ -6,10 +6,19 @@ export interface Job {
     id: string
     title: string
     department: string | null
+    /** Sub-group of the department, where the ATS has one (Ashby, Lever). */
+    team: string | null
     location: string | null
     employmentType: string | null
+    /** True or false when the source says so; null when it does not. */
+    isRemote: boolean | null
+    /** Pay range as the company publishes it, e.g. "$120K – $150K". Null when not shown. */
+    compensation: string | null
     /** Sanitised-by-source HTML. */
     descriptionHtml: string
+    /** Public job description page. */
+    jobUrl: string
+    /** Application form; the job page itself when the ATS has no separate form. */
     applyUrl: string
     /** ISO 8601, or null when the source does not expose it. */
     publishedAt: string | null
@@ -51,9 +60,13 @@ export function fingerprint(job: Job): string {
         job.id,
         job.title,
         job.department,
+        job.team,
         job.location,
         job.employmentType,
+        job.isRemote,
+        job.compensation,
         job.descriptionHtml,
+        job.jobUrl,
         job.applyUrl,
         job.publishedAt,
     ])

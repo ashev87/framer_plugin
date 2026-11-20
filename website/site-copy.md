@@ -45,7 +45,7 @@ Only if you choose “Always publish”. Publishing in Framer always publishes t
 If the job board cannot be reached, nothing in your CMS changes. If it suddenly returns no jobs at all while your collection has some, SyncRoles stops and asks you to confirm in the plugin before it removes anything.
 
 **Which fields do I get in the CMS?**
-Title, department, location, employment type, description, apply link and publish date. Greenhouse has no standard field for employment type, so that field stays empty unless your company added one.
+Title, department, team, location, employment type, remote, compensation (when the job board shows it), description, job page link, apply link and publish date. Field names match Framer's own Ashby plugin. Greenhouse has no standard field for employment type, so that field stays empty unless your company added one.
 
 **Do I design the careers page myself?**
 Yes. SyncRoles fills a CMS collection called Jobs. You build the list and the detail page from it in Framer like from any other collection.

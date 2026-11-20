@@ -21,6 +21,8 @@ describe("lever", () => {
             additional: "<div>Outro</div>",
             applyUrl: "https://jobs.lever.co/acme/uuid-1/apply",
             hostedUrl: "https://jobs.lever.co/acme/uuid-1",
+            workplaceType: "remote",
+            salaryRange: { min: 90000, max: 110000, currency: "EUR", interval: "per-year-salary" },
             createdAt: 1762000000000,
         },
         { id: "broken" },
@@ -34,9 +36,13 @@ describe("lever", () => {
             id: "uuid-1",
             title: "Backend Engineer",
             department: "Engineering",
+            team: "Platform",
             location: "Berlin",
             employmentType: "Full-time",
+            isRemote: true,
+            compensation: "EUR 90,000 – EUR 110,000 per year",
             descriptionHtml: "<div>Intro</div><h3>You &amp; us</h3><ul><li>One</li></ul><div>Outro</div>",
+            jobUrl: "https://jobs.lever.co/acme/uuid-1",
             applyUrl: "https://jobs.lever.co/acme/uuid-1/apply",
         })
         expect(jobs[0]!.publishedAt).toBe(new Date(1762000000000).toISOString())
@@ -99,9 +105,13 @@ describe("greenhouse", () => {
         expect(jobs[0]).toMatchObject({
             id: "127817",
             department: "Design",
+            team: null,
             location: "NYC",
             employmentType: "Full-time",
+            isRemote: null,
             descriptionHtml: "<p>Design &amp; build</p>",
+            jobUrl: "https://boards.greenhouse.io/vaulttec/jobs/127817",
+            applyUrl: "https://boards.greenhouse.io/vaulttec/jobs/127817",
             publishedAt: "2016-01-10T15:00:00.000Z",
         })
     })
@@ -119,20 +129,48 @@ describe("ashby", () => {
                 {
                     id: "a1",
                     title: "Designer",
-                    department: "Design",
+                    department: "Engineering",
+                    team: "Comms",
                     location: "Remote",
                     employmentType: "FullTime",
+                    isRemote: true,
                     descriptionHtml: "<p>Hi</p>",
+                    jobUrl: "https://jobs.ashbyhq.com/acme/a1",
                     applyUrl: "https://jobs.ashbyhq.com/acme/a1/application",
                     publishedAt: "2026-10-01T09:00:00.000+00:00",
                     isListed: true,
+                    shouldDisplayCompensationOnJobPostings: true,
+                    compensation: { compensationTierSummary: "$120K – $150K", scrapeableCompensationSalarySummary: null },
+                },
+                {
+                    id: "a3",
+                    title: "Recruiter",
+                    team: "People",
+                    jobUrl: "https://jobs.ashbyhq.com/acme/a3",
+                    applyUrl: "https://jobs.ashbyhq.com/acme/a3/application",
+                    shouldDisplayCompensationOnJobPostings: false,
+                    compensation: { compensationTierSummary: "$90K" },
                 },
                 { id: "a2", title: "Secret", applyUrl: "https://x", isListed: false },
             ],
         })
-        const jobs = await listJobs({ kind: "ashby", handle: "acme" }, fake(body))
-        expect(jobs).toHaveLength(1)
-        expect(jobs[0]).toMatchObject({ id: "a1", employmentType: "Full-time", publishedAt: "2026-10-01T09:00:00.000Z" })
+        const seen: string[] = []
+        const jobs = await listJobs({ kind: "ashby", handle: "acme" }, fake(body, 200, seen))
+        expect(seen).toEqual(["https://api.ashbyhq.com/posting-api/job-board/acme?includeCompensation=true"])
+        expect(jobs.map(j => j.id)).toEqual(["a1", "a3"])
+        expect(jobs[0]).toMatchObject({
+            id: "a1",
+            department: "Engineering",
+            team: "Comms",
+            employmentType: "Full-time",
+            isRemote: true,
+            compensation: "$120K – $150K",
+            jobUrl: "https://jobs.ashbyhq.com/acme/a1",
+            applyUrl: "https://jobs.ashbyhq.com/acme/a1/application",
+            publishedAt: "2026-10-01T09:00:00.000Z",
+        })
+        // No department: the team stands in for it; pay hidden unless the company shows it.
+        expect(jobs[1]).toMatchObject({ department: "People", team: null, isRemote: null, compensation: null })
     })
 })
 
@@ -159,10 +197,14 @@ describe("personio", () => {
             id: "1834171",
             title: "Staff Engineer, R&D",
             department: "Product and Tech",
+            team: null,
             location: "Munich",
             employmentType: "Full-time",
+            isRemote: null,
+            compensation: null,
             descriptionHtml:
                 "<h3>How you'll make an impact</h3><strong>Hybrid</strong><h3>What you do</h3><ul><li>Build</li></ul>",
+            jobUrl: "https://acme.jobs.personio.de/job/1834171?language=en",
             applyUrl: "https://acme.jobs.personio.de/job/1834171?language=en",
             publishedAt: "2024-11-13T14:10:41.000Z",
         })

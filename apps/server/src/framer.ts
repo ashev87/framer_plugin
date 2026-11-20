@@ -20,17 +20,31 @@ import { connect, isRetryableError, type Framer, type ManagedCollection, type Ma
  */
 export type PublishMode = "sync-only" | "publish-if-clean" | "always-publish"
 
+/**
+ * Field ids never change once shipped: customers' pages are bound to them.
+ * Names follow Framer's own Ashby plugin, so a page built on that collection
+ * maps across with the same headers.
+ */
 export const FIELDS: ManagedCollectionFieldInput[] = [
     { id: "title", name: "Title", type: "string" },
     { id: "department", name: "Department", type: "string" },
+    { id: "team", name: "Team", type: "string" },
     { id: "location", name: "Location", type: "string" },
     { id: "employmentType", name: "Employment Type", type: "string" },
+    { id: "isRemote", name: "Remote", type: "boolean" },
+    { id: "compensation", name: "Compensation", type: "string" },
     { id: "description", name: "Description", type: "formattedText" },
+    { id: "jobUrl", name: "Job URL", type: "link" },
     { id: "applyUrl", name: "Apply URL", type: "link" },
-    { id: "publishedAt", name: "Published", type: "date" },
+    { id: "publishedAt", name: "Published At", type: "date" },
     // Lets a run skip jobs that have not changed, so an idle run leaves the project untouched.
     { id: "syncHash", name: "Sync Hash", type: "string" },
 ]
+
+/** True when the collection already has exactly these fields, names included. */
+export function fieldsMatch(current: { id: string; name: string; type: string }[]): boolean {
+    return current.length === FIELDS.length && FIELDS.every((f, i) => current[i]?.id === f.id && current[i]?.type === f.type && current[i]?.name === f.name)
+}
 
 const BATCH = 100
 
@@ -41,9 +55,13 @@ function toItem(job: Job) {
         fieldData: {
             title: { type: "string" as const, value: job.title },
             department: { type: "string" as const, value: job.department ?? "" },
+            team: { type: "string" as const, value: job.team ?? "" },
             location: { type: "string" as const, value: job.location ?? "" },
             employmentType: { type: "string" as const, value: job.employmentType ?? "" },
+            isRemote: { type: "boolean" as const, value: job.isRemote === true },
+            compensation: { type: "string" as const, value: job.compensation ?? "" },
             description: { type: "formattedText" as const, value: job.descriptionHtml, contentType: "html" as const },
+            jobUrl: { type: "link" as const, value: job.jobUrl },
             applyUrl: { type: "link" as const, value: job.applyUrl },
             publishedAt: { type: "date" as const, value: job.publishedAt },
             syncHash: { type: "string" as const, value: fingerprint(job) },
@@ -146,8 +164,7 @@ export async function syncToFramer(req: SyncRequest): Promise<RunReport> {
 
         const collection = await findOrCreateCollection(framer, req.collectionName)
         const currentFields = await collection.getFields()
-        const sameFields =
-            currentFields.length === FIELDS.length && FIELDS.every((f, i) => currentFields[i]?.id === f.id && currentFields[i]?.type === f.type)
+        const sameFields = fieldsMatch(currentFields)
         if (!sameFields) await collection.setFields(FIELDS)
 
         const result = await runSync(jobs, new FramerCms(framer, collection), { allowEmptySource: req.allowEmptySource })

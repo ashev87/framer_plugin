@@ -74,3 +74,8 @@ export function safeHandle(handle: string, kind: SourceKind): string {
     }
     return h
 }
+
+/** For sources without a remote flag: true when the location says remote, otherwise unknown. */
+export function remoteFromLocation(location: string | null): boolean | null {
+    return location && /\b(remote|fully remote|anywhere)\b/i.test(location) ? true : null
+}

@@ -1,7 +1,7 @@
 import { decodeHTML } from "entities"
 import { XMLParser } from "fast-xml-parser"
 import { SourceError, type Job, type SourceAdapter } from "../job.js"
-import { escapeHtml, getText, isoDate, safeHandle, str } from "./http.js"
+import { escapeHtml, getText, isoDate, remoteFromLocation, safeHandle, str } from "./http.js"
 
 const parser = new XMLParser({
     ignoreAttributes: true,
@@ -57,14 +57,20 @@ function toJob(p: any, base: string, query: string): Job | null {
         .map(s => `<h3>${escapeHtml(text(s?.name) ?? "")}</h3>${typeof s?.value === "string" ? s.value : ""}`)
         .join("")
     const schedule = str(p.schedule)
+    const location = text(p.office)
+    const jobUrl = `${base}/job/${id}${query}`
     return {
         id,
         title,
         department: text(p.department) ?? text(p.recruitingCategory),
-        location: text(p.office),
+        team: null,
+        location,
         employmentType: schedule ? (SCHEDULE[schedule] ?? schedule) : str(p.employmentType),
+        isRemote: remoteFromLocation(location),
+        compensation: null,
         descriptionHtml,
-        applyUrl: `${base}/job/${id}${query}`,
+        jobUrl,
+        applyUrl: jobUrl,
         publishedAt: isoDate(p.createdAt),
     }
 }
