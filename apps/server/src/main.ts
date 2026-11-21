@@ -55,7 +55,8 @@ if (databaseUrl) {
     const webflowApp: WebflowAppConfig | null =
         WEBFLOW_CLIENT_ID && WEBFLOW_CLIENT_SECRET
             ? { clientId: WEBFLOW_CLIENT_ID, clientSecret: WEBFLOW_CLIENT_SECRET,
-                redirectUri: process.env.WEBFLOW_REDIRECT_URI ?? `${process.env.SITE_URL ?? "https://syncroles.com"}/webflow/callback` }
+                redirectUri: process.env.WEBFLOW_REDIRECT_URI ?? `${process.env.SITE_URL ?? "https://syncroles.com"}/webflow/callback`,
+                open: process.env.WEBFLOW_PUBLIC === "1" }
             : null
     if (!webflowApp) console.log("WEBFLOW_CLIENT_ID / WEBFLOW_CLIENT_SECRET not set: Webflow install shows 'coming soon'")
     app.route("/", createWebflowRoutes({ db, gateway: framer, config: webflowApp }))

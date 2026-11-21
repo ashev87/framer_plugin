@@ -23,6 +23,8 @@ export interface WebflowAppConfig {
     clientSecret: string
     /** Must match the redirect URI registered for the app. */
     redirectUri: string
+    /** False until Webflow approves the app: only ?preview=1 reaches OAuth, everyone else sees "coming soon". */
+    open?: boolean
 }
 
 export const WEBFLOW_SCOPES = ["sites:read", "cms:read", "cms:write"]
@@ -104,6 +106,8 @@ export function createWebflowRoutes(deps: WebflowDeps): Hono {
 
     app.get("/webflow/install", c => {
         if (!config) return notReady(c)
+        // Before approval only the developer's own workspace can install, so the public button stays closed.
+        if (config.open === false && c.req.query("preview") !== "1") return notReady(c)
         const state = randomBytes(24).toString("base64url")
         setCookie(c, STATE_COOKIE, state, { httpOnly: true, secure: true, sameSite: "Lax", path: "/webflow", maxAge: 600 })
         return c.redirect(authorizeUrl(config, state), 302)

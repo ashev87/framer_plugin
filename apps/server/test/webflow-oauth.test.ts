@@ -95,6 +95,12 @@ d("Webflow app routes", () => {
         expect(res.headers.get("location")).toBe("/webflow?status=soon")
     })
 
+    it("keeps the public button closed until the app is approved, except for preview", async () => {
+        const closed = createWebflowRoutes({ db, gateway, config: { ...config, open: false } })
+        expect((await closed.request("/webflow/install")).headers.get("location")).toBe("/webflow?status=soon")
+        expect((await closed.request("/webflow/install?preview=1")).headers.get("location")).toMatch(/^https:\/\/webflow\.com\/oauth\/authorize/)
+    })
+
     it("rejects a callback whose state does not match the cookie", async () => {
         const res = await app.request("/webflow/callback?code=good-code&state=forged", { headers: { cookie: "wf_oauth_state=other" } })
         expect(res.headers.get("location")).toBe("/webflow?status=expired")
