@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Auto-sync Personio jobs to Framer | SyncRoles</title>
+<meta name="description" content="Keep your Framer careers page in sync with Personio automatically. Open roles land in your Framer CMS every 15 minutes, closed roles disappear, and nothing is published unless you choose it. No Personio API key needed.">
+<link rel="canonical" href="https://syncroles.com/framer-personio-sync">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="/fonts/geist.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/styles.css">
+<meta name="theme-color" content="#0E1014">
+<meta property="og:title" content="Auto-sync Personio jobs to your Framer careers page">
+<meta property="og:description" content="Keep your Framer careers page in sync with Personio automatically. Open roles land in your Framer CMS every 15 minutes, closed roles disappear, and nothing is published unless you choose it. No Personio API key needed.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://syncroles.com/media/og.png">
+<meta property="og:url" content="https://syncroles.com/framer-personio-sync">
+<meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">[{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "SyncRoles for Personio", "applicationCategory": "BusinessApplication", "operatingSystem": "Web", "url": "https://syncroles.com/framer-personio-sync", "description": "Keep your Framer careers page in sync with Personio automatically. Open roles land in your Framer CMS every 15 minutes, closed roles disappear, and nothing is published unless you choose it. No Personio API key needed.", "offers": [{"@type": "Offer", "name": "Free", "price": "0", "priceCurrency": "USD"}, {"@type": "Offer", "name": "Auto-sync", "price": "99", "priceCurrency": "USD"}, {"@type": "Offer", "name": "Agency", "price": "249", "priceCurrency": "USD"}]}, {"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Does it keep syncing Personio jobs when Framer is closed?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. On a paid plan the sync runs on the SyncRoles server every 15 minutes. Nobody needs to have Framer or the plugin open. On the free plan you start each sync yourself from the plugin."}}, {"@type": "Question", "name": "Do I need a Personio API key?", "acceptedAnswer": {"@type": "Answer", "text": "No. SyncRoles reads your public Personio job board, for example your-company.jobs.personio.de. Applications go straight to Personio through its own apply links."}}, {"@type": "Question", "name": "Can it publish my unfinished design work?", "acceptedAnswer": {"@type": "Answer", "text": "Only if you choose “Always publish”. The default is that SyncRoles never publishes. With “Publish when only jobs changed”, it checks with Framer before each sync and skips publishing if any page has other unpublished changes."}}, {"@type": "Question", "name": "What does it cost?", "acceptedAnswer": {"@type": "Answer", "text": "Manual sync from the plugin is free. Automatic sync is $99 per site per year, or $249 per year for up to five sites, plus tax where it applies."}}]}]</script>
+<script defer src="https://www.ship-or-die.com/hackathon/verify.js" data-site="346110dbd3385859158d3ab6a95b048164640591"></script>
+</head>
+<body>
+<header><a class="logo" href="/"><svg viewBox="0 0 48 48" fill="currentColor" aria-hidden="true"><rect x="7" y="9" width="27" height="8" rx="4"/><rect x="14" y="20" width="27" height="8" rx="4"/><rect x="7" y="31" width="27" height="8" rx="4"/></svg>SyncRoles</a><nav><a class="hide-s" href="/#how">How it works</a><a class="hide-s" href="/#publishing">Publishing</a><a href="/webflow">Webflow</a><a class="hide-s" href="/#pricing">Pricing</a><a href="/docs">Setup guide</a></nav></header>
+<main>
+<h1>Auto-sync Personio jobs to your Framer careers page.</h1>
+<p class="lead">SyncRoles copies the open roles on your Personio job board into your Framer CMS every 15 minutes. New roles appear, closed roles disappear, and nobody has to open Framer and click sync.</p>
+<div class="cta"><a class="btn" href="https://www.framer.com/marketplace/plugins/syncroles/">Get the plugin</a><a class="btn ghost" href="/#pricing">See pricing</a></div>
+<p class="facts"><span>Personio → Framer CMS</span><span>manual sync is free</span><span>automatic sync from $99 a year</span></p>
+
+<h2>Why not the free Personio import?</h2>
+<p class="lead">The free Personio plugins for Framer import roles when someone opens the plugin and clicks. Between clicks, new roles are missing and closed roles stay up. SyncRoles runs on its own server, so your careers page follows Personio by itself.</p>
+
+<h2>Setup takes three steps</h2>
+<ul class="grid">
+<li><span class="step">01</span><h3>Enter your Personio board</h3><p>Open the plugin, pick Personio and type your company name from <span class="mono">your-company.jobs.personio.de</span>. You see the roles it found before anything is written.</p></li>
+<li><span class="step">02</span><h3>Connect the project</h3><p>Paste your Framer project address and a Server API key (Site Settings &gt; General). SyncRoles creates a Jobs collection.</p></li>
+<li><span class="step">03</span><h3>Bind your page once</h3><p>Point the careers list and job page at the Jobs collection. From then on the content follows Personio.</p></li>
+</ul>
+
+<h2>Fields you get from Personio</h2>
+<ul class="grid"><li><ul><li>Title</li><li>Department</li><li>Location</li><li>Employment Type</li><li>Remote</li><li>Description</li><li>Job URL</li><li>Apply URL</li><li>Published At</li></ul></li></ul>
+<p class="muted">Switch on the XML feed in Personio's career page settings first; SyncRoles reads that feed.</p>
+
+<h2>You decide what gets published</h2>
+<p class="lead">Publishing in Framer publishes the whole project, so SyncRoles never publishes on its own unless you choose it. <a href="/#publishing">See the three publishing modes</a>.</p>
+
+<h2>Questions</h2>
+<div class="faq"><details><summary>Does it keep syncing Personio jobs when Framer is closed?</summary><p>Yes. On a paid plan the sync runs on the SyncRoles server every 15 minutes. Nobody needs to have Framer or the plugin open. On the free plan you start each sync yourself from the plugin.</p></details><details><summary>Do I need a Personio API key?</summary><p>No. SyncRoles reads your public Personio job board, for example your-company.jobs.personio.de. Applications go straight to Personio through its own apply links.</p></details><details><summary>Can it publish my unfinished design work?</summary><p>Only if you choose “Always publish”. The default is that SyncRoles never publishes. With “Publish when only jobs changed”, it checks with Framer before each sync and skips publishing if any page has other unpublished changes.</p></details><details><summary>What does it cost?</summary><p>Manual sync from the plugin is free. Automatic sync is $99 per site per year, or $249 per year for up to five sites, plus tax where it applies.</p></details></div>
+<p class="muted">Also works with <a href="/framer-ashby-sync">Ashby</a>, <a href="/framer-greenhouse-sync">Greenhouse</a>, <a href="/framer-lever-sync">Lever</a> and <a href="/framer-personio-sync">Personio</a>, and on <a href="/webflow">Webflow</a>.</p>
+</main>
+<footer><span>© 2026 SyncRoles</span><a href="/framer-ashby-sync">Ashby</a><a href="/framer-greenhouse-sync">Greenhouse</a><a href="/framer-lever-sync">Lever</a><a href="/framer-personio-sync">Personio</a><a href="/docs">Setup guide</a><a href="/privacy">Privacy</a><a href="/impressum">Impressum</a><a href="/manage">Manage subscription</a></footer>
+</body>
+</html>

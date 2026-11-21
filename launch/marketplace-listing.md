@@ -6,7 +6,7 @@ Upload `syncroles-plugin.zip` at https://www.framer.com/marketplace/dashboard/pl
 SyncRoles
 
 ## Short description (one line)
-Keep your careers page in sync with Lever, Greenhouse, Ashby or Personio, automatically.
+Auto-sync Ashby, Greenhouse, Lever or Personio jobs to your Framer CMS, no clicking sync.
 
 ## Category
 CMS
