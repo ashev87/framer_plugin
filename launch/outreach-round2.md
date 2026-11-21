@@ -148,3 +148,21 @@ He found it by googling "auto sync ashby framer". Framer's Ashby plugin imports 
 SyncRoles syncs Ashby, Greenhouse, Lever or Personio into your Framer CMS every 15 min. Closed roles disappear by themselves.
 
 syncroles.com · #ShipOrDie
+
+## Sent log (21 Nov 2026)
+
+| Company | Route | Sent to |
+|---|---|---|
+| Chai Discovery | Gmail (a.shev87@gmail.com) | info@chaidiscovery.com |
+| Augment | Gmail | careers@goaugment.com |
+| August | Gmail | team@august.law |
+| Minnesota Cannabis Services | LinkedIn company page message, topic "Other" | company inbox |
+| Zania | LinkedIn company page message | company inbox |
+| Ricursive Intelligence | LinkedIn company page message | company inbox |
+| Haptic Studio | LinkedIn company page message (agency plan) | company inbox |
+| Ambience Healthcare | LinkedIn connection invite with note | Therese Orella, Recruiting Leader |
+| Duna | LinkedIn connection invite with note | Adriana Evtimova, Talent & People |
+
+Invite notes (200-character limit) said: "your careers page lists N roles linked to Ashby. I built SyncRoles, which keeps a Framer careers page in sync with Ashby automatically, closed roles included. Free to try: syncroles.com".
+
+LinkedIn limits on this account (no Premium): messages to people outside your network need Premium; personalized invites are capped, 1 left for November after these two. Evan Connor (Ambience) requires his email to connect, so he was skipped.
