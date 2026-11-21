@@ -25,6 +25,8 @@ export interface CheckResult {
     closedButListed: { title: string; url: string }[]
     /** Open roles whose posting is not linked and whose title does not appear on the page. */
     openButMissing: { title: string; url: string }[]
+    /** The page also links to the full job board, so a short featured list may be on purpose. */
+    linksToBoard: boolean
 }
 
 const UUID = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
@@ -86,7 +88,7 @@ export function extractPostingLinks(html: string, pageUrl: string): PostingLink[
         }
         const parsed = parsePostingUrl(abs)
         if (!parsed) continue
-        const text = visibleText(m[4] ?? "")
+        const text = cleanLinkText(visibleText(m[4] ?? ""))
         const key = `${parsed.kind}:${parsed.handle.toLowerCase()}:${parsed.id}`
         const prev = out.get(key)
         // Keep the most descriptive link text seen for the posting.
@@ -122,10 +124,10 @@ export function compareWithBoard(html: string, pageUrl: string, source: SourceCo
     const pageText = normalise(visibleText(html))
     const closedButListed = links
         .filter(l => !openIds.has(l.id))
-        .map(l => ({ title: l.text && !/^(apply|apply now|view|view role|learn more|read more|details)$/i.test(l.text) ? l.text : "(untitled link)", url: l.url }))
+        .map(l => ({ title: l.text || "(untitled link)", url: l.url }))
     const openButMissing = jobs
         .filter(j => !linkedIds.has(j.id.toLowerCase()) && !pageText.includes(normalise(j.title)))
-        .map(j => ({ title: j.title, url: j.jobUrl }))
+        .map(j => ({ title: j.location ? `${j.title} · ${j.location}` : j.title, url: j.jobUrl }))
     return {
         source,
         framer: isFramerPage(html),
@@ -133,7 +135,40 @@ export function compareWithBoard(html: string, pageUrl: string, source: SourceCo
         open: jobs.length,
         closedButListed,
         openButMissing,
+        linksToBoard: linksToBoardHome(html, pageUrl, source),
     }
+}
+
+/** True when the page links to the board's own listing page, e.g. "See all open roles". */
+export function linksToBoardHome(html: string, pageUrl: string, source: SourceConfig): boolean {
+    const handle = source.handle.toLowerCase()
+    for (const m of html.matchAll(/\bhref\s*=\s*("([^"]*)"|'([^']*)')/gi)) {
+        let u: URL
+        try {
+            u = new URL(decodeHTML(m[2] ?? m[3] ?? ""), pageUrl)
+        } catch {
+            continue
+        }
+        const host = u.hostname.toLowerCase()
+        const parts = u.pathname.split("/").filter(Boolean).map(x => decodeURIComponent(x).toLowerCase())
+        if (parsePostingUrl(u.toString())) continue
+        if (source.kind === "ashby" && host === "jobs.ashbyhq.com" && parts[0] === handle) return true
+        if (source.kind === "lever" && /^jobs(\.eu)?\.lever\.co$/.test(host) && parts[0] === handle) return true
+        if (source.kind === "greenhouse" && /^(job-)?boards(\.eu)?\.greenhouse\.io$/.test(host) && parts[0] === handle) return true
+        if (source.kind === "personio" && host.startsWith(`${handle}.jobs.personio.`)) return true
+    }
+    return false
+}
+
+/** Link text without CTA words, and without the doubled copy responsive layouts often render. */
+export function cleanLinkText(text: string): string {
+    let t = text.replace(/\s+/g, " ").trim()
+    const words = t.split(" ")
+    if (words.length % 2 === 0) {
+        const half = words.length / 2
+        if (words.slice(0, half).join(" ") === words.slice(half).join(" ")) t = words.slice(0, half).join(" ")
+    }
+    return t.replace(/\s*(view role|view job|apply now|apply|learn more|read more|see details|details)\s*$/i, "").trim()
 }
 
 function visibleText(html: string): string {

@@ -72,8 +72,8 @@ function render(r) {
   const ok = r.closedButListed.length === 0 && r.openButMissing.length === 0
   let html = `<h3>${ok ? '<span class="good">Your careers page matches ' + esc(tool) + "</span>" : "Your careers page is out of step with " + esc(tool)}</h3>`
   html += `<div class="summary"><div><b>${r.linked}</b><span>jobs linked on your page</span></div><div><b>${r.open}</b><span>open roles on ${esc(tool)}</span></div><div><b>${r.closedButListed.length}</b><span>closed or unlisted, still on your page</span></div><div><b>${r.openButMissing.length}</b><span>open, missing from your page</span></div></div>`
-  if (r.closedButListed.length) html += `<h3 style="margin-top:28px">Still on your page, no longer open</h3>` + list(r.closedButListed)
-  if (r.openButMissing.length) html += `<h3 style="margin-top:28px">Open on ${esc(tool)}, missing from your page</h3>` + list(r.openButMissing)
+  if (r.closedButListed.length) html += `<h3 style="margin-top:28px">Still on your page, not on your public job board</h3><p class="note">These postings are closed, or set to unlisted in ${esc(tool)}.</p>` + list(r.closedButListed)
+  if (r.openButMissing.length) html += `<h3 style="margin-top:28px">Open on ${esc(tool)}, missing from your page</h3>` + (r.linksToBoard ? `<p class="note">Your page also links to your full job board, so showing only a few roles may be on purpose.</p>` : "") + list(r.openButMissing)
   html += `<p class="note">Job board: ${esc(tool)} · ${esc(r.source.handle)}${r.framer ? " · built with Framer" : ""}</p>`
   if (!ok) html += `<div class="cta"><a class="btn" href="${r.framer ? "https://www.framer.com/marketplace/plugins/syncroles/" : "/"}">Fix it automatically with SyncRoles</a></div>`
   return html
