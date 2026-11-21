@@ -176,6 +176,9 @@ function customerMessage(err: unknown): string {
     if (err instanceof WebflowApiError) {
         if (err.status === 401 || err.status === 403) return "Webflow access was removed for this site. Connect it again at syncroles.com/webflow."
         if (err.needsCmsPlan) return "This Webflow site has no CMS plan. Upgrade the site plan in Webflow, then sync again."
+        if (err.status === 409 && /items in your CMS Database allowed/i.test(err.body)) {
+            return "Your Webflow site plan's CMS item limit is reached. The jobs that fitted were added; for the rest, raise the plan in Webflow or remove other CMS items, then sync again."
+        }
         if (err.status === 429 || err.status >= 500) return "Webflow did not respond properly right now. The next run will try again."
         return `Webflow refused a change: ${err.webflowMessage.slice(0, 300)}. Nothing else was changed after the error.`
     }
