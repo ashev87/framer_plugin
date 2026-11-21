@@ -2,6 +2,7 @@ import { readFile } from "node:fs/promises"
 import { serve } from "@hono/node-server"
 import { Hono } from "hono"
 import { createApi } from "./api.js"
+import { createCheckRoutes } from "./check.js"
 import { migrate, openDb } from "./db.js"
 import { syncToFramer } from "./framer.js"
 import { probe } from "./probe.js"
@@ -14,6 +15,7 @@ const port = Number(process.env.PORT ?? 3000)
 const app = new Hono()
 
 app.get("/health", c => c.json({ ok: true }))
+app.route("/", createCheckRoutes())
 
 /** The public website: a fixed list, so no request path ever reaches the file system. */
 const PAGES: Record<string, { file: string; type: string }> = {
@@ -24,6 +26,7 @@ const PAGES: Record<string, { file: string; type: string }> = {
     "/manage": { file: "manage.html", type: "text/html; charset=utf-8" },
     "/docs": { file: "docs.html", type: "text/html; charset=utf-8" },
     "/webflow": { file: "webflow.html", type: "text/html; charset=utf-8" },
+    "/check": { file: "check.html", type: "text/html; charset=utf-8" },
     "/framer-ashby-sync": { file: "framer-ashby-sync.html", type: "text/html; charset=utf-8" },
     "/framer-greenhouse-sync": { file: "framer-greenhouse-sync.html", type: "text/html; charset=utf-8" },
     "/framer-lever-sync": { file: "framer-lever-sync.html", type: "text/html; charset=utf-8" },

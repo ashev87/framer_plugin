@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Careers page checker: find closed jobs still on your site | SyncRoles</title>
+<meta name="description" content="Free check for careers pages built on Lever, Greenhouse, Ashby or Personio. See which roles on your site are already closed and which open roles are missing.">
+<link rel="canonical" href="https://syncroles.com/check">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="/fonts/geist.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/styles.css">
+<meta name="theme-color" content="#0E1014">
+<meta property="og:title" content="Is your careers page out of date? Free check">
+<meta property="og:description" content="Paste your careers page. See which listed roles are already closed in Lever, Greenhouse, Ashby or Personio, and which open roles are missing.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://syncroles.com/media/og.png">
+<meta property="og:url" content="https://syncroles.com/check">
+<meta name="twitter:card" content="summary_large_image">
+<script defer src="https://www.ship-or-die.com/hackathon/verify.js" data-site="346110dbd3385859158d3ab6a95b048164640591"></script>
+<style>
+.checker { display:flex; flex-wrap:wrap; gap:10px; margin-top:28px; max-width:760px; }
+.checker input { flex:1 1 380px; min-width:0; padding:11px 14px; border-radius:10px; border:1px solid var(--line); background:var(--card); color:var(--ink); font:inherit; font-size:16px; }
+.checker input:focus { outline:2px solid var(--accent); outline-offset:1px; }
+#result { margin-top:36px; max-width:860px; }
+.summary { display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:12px; margin-top:16px; }
+.summary div { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px 16px; }
+.summary b { display:block; font-size:28px; letter-spacing:-.03em; }
+.summary span { color:var(--muted); font-size:14px; }
+.list { margin-top:12px; background:var(--card); border:1px solid var(--line); border-radius:12px; overflow:hidden; }
+.list a { display:block; padding:11px 16px; border-top:1px solid var(--line); color:var(--ink); text-decoration:none; font-size:15.5px; }
+.list a:first-child { border-top:0; }
+.list a:hover { background:var(--bg); }
+.good { color:var(--ok); }
+.note { color:var(--muted); font-size:14.5px; }
+</style>
+</head>
+<body>
+<header><a class="logo" href="/"><svg viewBox="0 0 48 48" fill="currentColor" aria-hidden="true"><rect x="7" y="9" width="27" height="8" rx="4"/><rect x="14" y="20" width="27" height="8" rx="4"/><rect x="7" y="31" width="27" height="8" rx="4"/></svg>SyncRoles</a><nav><a class="hide-s" href="/">Framer</a><a href="/webflow">Webflow</a><a href="/check">Free check</a><a class="hide-s" href="/#pricing">Pricing</a></nav></header>
+<main>
+<h1>Is your careers page out of date?</h1>
+<p class="lead">Paste the address of your careers page. We compare it with your job board on Lever, Greenhouse, Ashby or Personio and show which listed roles are already closed and which open roles are missing.</p>
+<form class="checker" id="form">
+<input id="url" type="text" inputmode="url" autocomplete="url" placeholder="yourcompany.com/careers" aria-label="Careers page address" required>
+<button class="btn" type="submit" id="go">Check my page</button>
+</form>
+<p class="facts"><span>free</span><span>no sign-up</span><span>works with any website builder</span></p>
+
+<section id="result" aria-live="polite"></section>
+
+<h2>How the check works</h2>
+<ul class="grid">
+<li><span class="step">01</span><h3>We read your page</h3><p>We load the careers page you entered and collect every link that points to a single job on your job board.</p></li>
+<li><span class="step">02</span><h3>We read your job board</h3><p>We load the public list of open roles from the same board, the one candidates see. No login or API key is needed.</p></li>
+<li><span class="step">03</span><h3>We compare the two</h3><p>A linked job that is no longer on the board is closed or unlisted. An open role whose link and title are nowhere on your page is missing.</p></li>
+</ul>
+<p class="muted">We don't keep the pages you check; we log only the site name and the counts. If your roles load with a script widget instead of links in the page, the check can't see them.</p>
+
+<h2>Keep it right without thinking about it</h2>
+<p class="lead">SyncRoles copies open roles from your job board into your Framer or Webflow CMS every 15 minutes, so closed roles disappear by themselves. Manual sync is free.</p>
+<div class="cta"><a class="btn" href="https://www.framer.com/marketplace/plugins/syncroles/">Get the Framer plugin</a><a class="btn ghost" href="/webflow">SyncRoles for Webflow</a></div>
+</main>
+<footer><span>© 2026 SyncRoles</span><a href="/framer-ashby-sync">Ashby</a><a href="/framer-greenhouse-sync">Greenhouse</a><a href="/framer-lever-sync">Lever</a><a href="/framer-personio-sync">Personio</a><a href="/privacy">Privacy</a><a href="/impressum">Impressum</a></footer>
+<script>
+const NAMES = { ashby: "Ashby", greenhouse: "Greenhouse", lever: "Lever", personio: "Personio" }
+const form = document.getElementById("form"), input = document.getElementById("url"), go = document.getElementById("go"), out = document.getElementById("result")
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]))
+const list = items => `<div class="list">${items.map(i => `<a href="${esc(i.url)}" target="_blank" rel="noopener nofollow">${esc(i.title)}</a>`).join("")}</div>`
+function render(r) {
+  if (r.error) return `<p class="note">${esc(r.error)}</p>`
+  if (r.status === "no-links") return `<h3>No job links found on this page</h3><p class="note">We found no links to single jobs on Lever, Greenhouse, Ashby or Personio. Your roles may load with a script widget, or live on another page. Try the page that lists your open roles.</p>`
+  const tool = NAMES[r.source.kind] || r.source.kind
+  const ok = r.closedButListed.length === 0 && r.openButMissing.length === 0
+  let html = `<h3>${ok ? '<span class="good">Your careers page matches ' + esc(tool) + "</span>" : "Your careers page is out of step with " + esc(tool)}</h3>`
+  html += `<div class="summary"><div><b>${r.linked}</b><span>jobs linked on your page</span></div><div><b>${r.open}</b><span>open roles on ${esc(tool)}</span></div><div><b>${r.closedButListed.length}</b><span>closed or unlisted, still on your page</span></div><div><b>${r.openButMissing.length}</b><span>open, missing from your page</span></div></div>`
+  if (r.closedButListed.length) html += `<h3 style="margin-top:28px">Still on your page, no longer open</h3>` + list(r.closedButListed)
+  if (r.openButMissing.length) html += `<h3 style="margin-top:28px">Open on ${esc(tool)}, missing from your page</h3>` + list(r.openButMissing)
+  html += `<p class="note">Job board: ${esc(tool)} · ${esc(r.source.handle)}${r.framer ? " · built with Framer" : ""}</p>`
+  if (!ok) html += `<div class="cta"><a class="btn" href="${r.framer ? "https://www.framer.com/marketplace/plugins/syncroles/" : "/"}">Fix it automatically with SyncRoles</a></div>`
+  return html
+}
+form.addEventListener("submit", async e => {
+  e.preventDefault()
+  go.disabled = true; go.textContent = "Checking…"; out.innerHTML = '<p class="note">Reading your page and your job board…</p>'
+  try {
+    const res = await fetch("/api/check", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ url: input.value }) })
+    out.innerHTML = render(await res.json())
+  } catch { out.innerHTML = '<p class="note">The check failed. Please try again.</p>' }
+  go.disabled = false; go.textContent = "Check my page"
+})
+const q = new URLSearchParams(location.search).get("url")
+if (q) { input.value = q; form.requestSubmit() }
+</script>
+</body>
+</html>
