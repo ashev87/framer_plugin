@@ -177,7 +177,7 @@ function customerMessage(err: unknown): string {
         if (err.status === 401 || err.status === 403) return "Webflow access was removed for this site. Connect it again at syncroles.com/webflow."
         if (err.needsCmsPlan) return "This Webflow site has no CMS plan. Upgrade the site plan in Webflow, then sync again."
         if (err.status === 429 || err.status >= 500) return "Webflow did not respond properly right now. The next run will try again."
-        return "Webflow refused a change. Nothing else was changed after the error."
+        return `Webflow refused a change: ${err.webflowMessage.slice(0, 300)}. Nothing else was changed after the error.`
     }
     const code = (err as { code?: string })?.code
     if (code === "UNAUTHORIZED") return "Framer rejected the API key. Create a new key in Site Settings > General and reconnect."

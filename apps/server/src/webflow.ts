@@ -28,7 +28,10 @@ import {
 export type WebflowPublishMode = "sync-only" | "publish-jobs"
 
 const API = "https://api.webflow.com/v2"
+/** Page size for reads. */
 const BATCH = 100
+/** Items per write: job descriptions are long, and one request has a size limit. */
+const WRITE_BATCH = 25
 
 /** Field slugs never change once shipped: customers' templates are bound to them. */
 export const WEBFLOW_FIELDS: { slug: string; displayName: string; type: string; helpText?: string }[] = [
@@ -61,6 +64,16 @@ export class WebflowApiError extends Error {
     get needsCmsPlan(): boolean {
         return this.status === 409 && /upgrade to cms/i.test(this.body)
     }
+    /** Webflow's own explanation (message, code and field details), safe to show: it never contains our token. */
+    get webflowMessage(): string {
+        try {
+            const b = JSON.parse(this.body) as { message?: string; code?: string; details?: unknown[] }
+            const details = Array.isArray(b.details) && b.details.length ? ` ${JSON.stringify(b.details).slice(0, 300)}` : ""
+            return `${b.message ?? ""}${b.code ? ` (${b.code})` : ""}${details}`.trim() || `HTTP ${this.status}`
+        } catch {
+            return `HTTP ${this.status}`
+        }
+    }
 }
 
 export class WebflowClient {
@@ -88,7 +101,11 @@ export class WebflowClient {
                 continue
             }
             const text = await res.text()
-            if (!res.ok) throw new WebflowApiError(`Webflow ${method} ${path} failed with ${res.status}`, res.status, text)
+            if (!res.ok) {
+                const err = new WebflowApiError(`Webflow ${method} ${path.split("?")[0]} failed with ${res.status}`, res.status, text)
+                console.error(`${err.message}: ${err.webflowMessage.slice(0, 400)}`)
+                throw err
+            }
             return (text ? JSON.parse(text) : {}) as T
         }
     }
@@ -166,22 +183,22 @@ export class WebflowCms implements CmsPort {
     }
 
     async createItems(jobs: Job[]): Promise<void> {
-        for (let i = 0; i < jobs.length; i += BATCH) {
-            const items = jobs.slice(i, i + BATCH).map(job => ({ isDraft: false, isArchived: false, fieldData: toFieldData(job) }))
+        for (let i = 0; i < jobs.length; i += WRITE_BATCH) {
+            const items = jobs.slice(i, i + WRITE_BATCH).map(job => ({ isDraft: false, isArchived: false, fieldData: toFieldData(job) }))
             await this.write("POST", { items })
         }
     }
 
     async updateItems(updates: { itemId: string; job: Job }[]): Promise<void> {
-        for (let i = 0; i < updates.length; i += BATCH) {
-            const items = updates.slice(i, i + BATCH).map(u => ({ id: u.itemId, isDraft: false, isArchived: false, fieldData: toFieldData(u.job) }))
+        for (let i = 0; i < updates.length; i += WRITE_BATCH) {
+            const items = updates.slice(i, i + WRITE_BATCH).map(u => ({ id: u.itemId, isDraft: false, isArchived: false, fieldData: toFieldData(u.job) }))
             await this.write("PATCH", { items })
         }
     }
 
     async removeItems(itemIds: string[]): Promise<void> {
-        for (let i = 0; i < itemIds.length; i += BATCH) {
-            const items = itemIds.slice(i, i + BATCH).map(id => ({ id }))
+        for (let i = 0; i < itemIds.length; i += WRITE_BATCH) {
+            const items = itemIds.slice(i, i + WRITE_BATCH).map(id => ({ id }))
             if (this.live) {
                 // Takes the item off the live site; a never-published item may answer 404, which is fine.
                 await this.client.request("DELETE", this.itemsPath(true), { items }).catch(err => {
