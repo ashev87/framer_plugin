@@ -51,8 +51,9 @@ code { background:var(--card); border:1px solid var(--line); border-radius:6px; 
 .tool .mono { display:block; color:var(--muted); margin-top:6px; font-size:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .price { font-size:34px; font-weight:650; letter-spacing:-.04em; margin-top:8px; }
 .price small { font-size:14px; font-weight:400; letter-spacing:0; color:var(--muted); }
-.plan ul { padding-left:18px; margin:12px 0 0; color:var(--muted); font-size:15.5px; }
-.plan .buy, .plan .btn { margin-top:18px; }
+.plan { display:flex; flex-direction:column; }
+.plan ul { padding-left:18px; margin:12px 0 18px; color:var(--muted); font-size:15.5px; }
+.plan .buy, .plan .btn { margin-top:auto; align-self:flex-start; }
 .plan.main { border-color:var(--accent); }
 details { border-top:1px solid var(--line); padding:16px 0; }
 details:last-of-type { border-bottom:1px solid var(--line); }
