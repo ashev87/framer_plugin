@@ -184,3 +184,23 @@ Role counts read from each live careers page the same day.
 
 Checked and dropped: Coastal Community Bank (page changed, 3 roles), Possible Finance (page now matches its Ashby board).
 The Knot Worldwide: "Sales Executive" (London) and "Senior Manager, Consolidations and Reporting" (New York) are still featured but return errors from the Greenhouse job API (an open role on the same board returns fine), so the round-1 message is still accurate.
+
+## Round 2c (21 Nov 2026, ~13:00): emails to leads with a published address
+
+Role counts from syncroles.com/check the same day (each page matched its Ashby board).
+
+| Company | Roles | Sent to |
+|---|---|---|
+| Opal Security | 9 | people@opal.dev |
+| Ankar | 8 | careers@ankar.ai |
+| Ajax | 6 | careers@joinajax.com |
+| Vertical Semiconductor | 5 | careers@verticalsemi.com |
+| Conception | 4 (homepage) | hello@conception.bio |
+
+No public email found on the careers pages of Artemis, CUBE, BranchLab, Method or Conduct; Abacum only lists support@. German companies (Noxtua, Moltomedia, guapa) are not emailed: cold B2B email needs prior consent in Germany.
+
+Max (Xona) got a check-in on 21 Nov in the existing thread, from licence@syncroles.com, asking how it works and whether he needs anything. Ask about naming Xona after he answers.
+
+## Next LinkedIn batch (page-message limit resets)
+Numa, Summ.link, Hanover Park, Fulcrum, The Knot Worldwide (round-1 text still accurate).
+Generic Framer agencies found on LinkedIn (weaker, no careers-page link yet): Flowfye, Amziro Web, Olyria (Berlin), Artificer, Thewebheart, Framerfry, Framer Experts UK, Pixiio.
