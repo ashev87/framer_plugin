@@ -49,6 +49,13 @@
 <h2>Automatic sync</h2>
 <p id="licenceText">Paste your licence key to sync every 15 minutes. No key yet? <a href="/webflow#pricing">Buy Auto-sync</a>.</p>
 <form class="keyrow" id="licenceForm"><input class="key" id="licence" placeholder="SR-XXXX-XXXX-XXXX-XXXX" autocomplete="off" aria-label="Licence key"><button class="buy" type="submit">Add key</button></form>
+<h2>Job board</h2>
+<form class="form" id="sourceForm">
+<label>Hiring tool<select id="mkind"><option value="ashby">Ashby</option><option value="greenhouse">Greenhouse</option><option value="lever">Lever</option><option value="personio">Personio</option></select></label>
+<label>Job-board name<input type="text" id="mhandle" required autocomplete="off"></label>
+<label class="check"><input type="checkbox" id="meu"> Lever board on jobs.eu.lever.co</label>
+<div><button class="btn ghost" type="submit">Save and sync</button></div>
+</form>
 <h2>Publishing</h2>
 <form class="form" id="modeForm">
 <label class="radio"><input type="radio" name="mmode" value="publish-jobs"> Publish the jobs <small>Only job items go live.</small></label>
@@ -139,6 +146,9 @@ async function refresh() {
       `<p class="${site.scheduled ? "ok" : "muted"}">${site.scheduled ? `Automatic sync every 15 minutes, licence until ${new Date(site.licenceExpiresAt).toLocaleDateString()}` : "Manual sync only. Add a licence key for automatic sync."}</p>`
   $("licenceForm").hidden = site.scheduled
   document.querySelectorAll("input[name=mmode]").forEach(i => { i.checked = i.value === site.publishMode })
+  if (document.activeElement !== $("mhandle")) {
+    $("mkind").value = site.source.kind; $("mhandle").value = site.source.handle; $("meu").checked = site.source.options?.region === "eu"
+  }
   $("runs").innerHTML = runs.map(runLine).join("") || "<li>No runs yet.</li>"
 }
 function showManage(id) {
@@ -151,6 +161,16 @@ $("syncBtn").onclick = async () => {
   showErr(""); $("syncBtn").disabled = true; $("syncBtn").textContent = "Syncing…"
   try { await call("POST", `/api/sites/${current.id}/sync`, current.token, {}); await refresh() } catch (e) { showErr(e.message) }
   $("syncBtn").disabled = false; $("syncBtn").textContent = "Sync now"
+}
+$("sourceForm").onsubmit = async ev => {
+  ev.preventDefault(); showErr("")
+  const kind = $("mkind").value, options = {}
+  if (kind === "lever" && $("meu").checked) options.region = "eu"
+  try {
+    await call("PATCH", `/api/sites/${current.id}`, current.token, { source: { kind, handle: $("mhandle").value.trim(), options } })
+    await call("POST", `/api/sites/${current.id}/sync`, current.token, {})
+    await refresh()
+  } catch (e) { showErr(e.message) }
 }
 $("licenceForm").onsubmit = async ev => {
   ev.preventDefault(); showErr("")
