@@ -14,13 +14,13 @@ Every role count below was read from the live careers page on 21 Nov 2026. From 
 
 | # | Company | Roles on page (21 Nov) | Hiring tool | Route |
 |---|---|---|---|---|
-| 1 | Minnesota Cannabis Services (mncanna.com) | 39 | Greenhouse | contact not found yet; find the marketing or web owner on LinkedIn |
+| 1 | Minnesota Cannabis Services (mncanna.com) | 39 | Greenhouse | LinkedIn company page message |
 | 2 | Chai Discovery (chaidiscovery.com) | 23 | Ashby | email info@chaidiscovery.com |
-| 3 | Ambience Healthcare (ambiencehealthcare.com) | 18 | Ashby | contact not found yet; LinkedIn |
+| 3 | Ambience Healthcare (ambiencehealthcare.com) | 18 | Ashby | company page has no Message button; needs a person |
 | 4 | Zania (zania.ai) | 17, as CMS pages on its own site | Ashby | LinkedIn company page |
-| 5 | Ricursive Intelligence (ricursive.com) | 15 incl. a general application card | Ashby | contact not found yet; LinkedIn |
+| 5 | Ricursive Intelligence (ricursive.com) | 15 incl. a general application card | Ashby | LinkedIn company page message |
 | 6 | Augment (goaugment.com) | 12 | Ashby | email careers@goaugment.com |
-| 7 | Duna (duna.com) | 10 plus an open application card | Ashby | LinkedIn company page (already in round 1; send only one of the two) |
+| 7 | Duna (duna.com) | 10 plus an open application card | Ashby | company page has no Message button; needs a person |
 | 8 | August (august.law) | 9 | Ashby | email team@august.law |
 
 Smaller lists from the 17 Nov check (Noxtua 6, Ornn 8 and below) stay in round 1.
@@ -28,9 +28,9 @@ Smaller lists from the 17 Nov check (Noxtua 6, Ornn 8 and below) stay in round 1
 ## Messages
 
 ### 1. Minnesota Cannabis Services
-**Send via:** LinkedIn, to whoever runs the website or marketing
+**Send via:** LinkedIn company page (has a Message button)
 
-Hi,
+Hi Minnesota Cannabis Services team,
 
 your careers page lists 39 roles, almost all retail, each linked to Greenhouse. With that much turnover, keeping the Framer page in step with Greenhouse by hand is a lot of clicking.
 
@@ -73,9 +73,9 @@ Manual sync is free to try: https://www.framer.com/marketplace/plugins/syncroles
 Andriy
 
 ### 5. Ricursive Intelligence
-**Send via:** LinkedIn, to whoever runs the website
+**Send via:** LinkedIn company page (has a Message button)
 
-Hi,
+Hi Ricursive team,
 
 your careers page lists 15 roles across five teams, each linked to Ashby. If someone keeps those up by hand in Framer, SyncRoles can take it over: open roles are copied into your Framer CMS every 15 minutes and closed ones removed, without anyone opening Framer.
 
