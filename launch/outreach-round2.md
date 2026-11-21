@@ -192,8 +192,8 @@ Role counts from syncroles.com/check the same day (each page matched its Ashby b
 | Company | Roles | Sent to |
 |---|---|---|
 | Opal Security | 9 | people@opal.dev |
-| Ankar | 8 | careers@ankar.ai |
-| Ajax | 6 | careers@joinajax.com |
+| Ankar | 8 | careers@ankar.ai (blocked by their mail server, not delivered) |
+| Ajax | 6 | careers@joinajax.com (bounced: address does not exist) |
 | Vertical Semiconductor | 5 | careers@verticalsemi.com |
 | Conception | 4 (homepage) | hello@conception.bio |
 
@@ -204,3 +204,6 @@ Max (Xona) got a check-in on 21 Nov in the existing thread, from licence@syncrol
 ## Next LinkedIn batch (page-message limit resets)
 Numa, Summ.link, Hanover Park, Fulcrum, The Knot Worldwide (round-1 text still accurate).
 Generic Framer agencies found on LinkedIn (weaker, no careers-page link yet): Flowfye, Amziro Web, Olyria (Berlin), Artificer, Thewebheart, Framerfry, Framer Experts UK, Pixiio.
+
+## Replies (checked 21 Nov, 16:20)
+No replies yet from any company by email or LinkedIn. On X, Robin (@robingeekydev) replied to our reply: "This looks useful!"
