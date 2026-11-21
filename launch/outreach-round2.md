@@ -166,3 +166,21 @@ syncroles.com · #ShipOrDie
 Invite notes (200-character limit) said: "your careers page lists N roles linked to Ashby. I built SyncRoles, which keeps a Framer careers page in sync with Ashby automatically, closed roles included. Free to try: syncroles.com".
 
 LinkedIn limits on this account (no Premium): messages to people outside your network need Premium; personalized invites are capped, 1 left for November after these two. Evan Connor (Ambience) requires his email to connect, so he was skipped.
+
+## Round 2b (21 Nov 2026, ~12:00)
+
+Role counts read from each live careers page the same day.
+
+| Company | Roles on page | Route | Result |
+|---|---|---|---|
+| Artemis Security | 25 (Ashby) | LinkedIn company page message | sent |
+| CUBE | 12 (Ashby) | LinkedIn company page message | sent |
+| BranchLab | 11 + general opening (Ashby) | LinkedIn company page message | sent |
+| Method | 11 (Ashby) | LinkedIn company page message | sent |
+| guapa studio (Berlin agency that rebuilt conduct.ai) | Conduct lists 22 Ashby roles | LinkedIn invite with note to Leo Zabudkin | sent (last personalized invite for November) |
+| Numa | 9 (Greenhouse) | LinkedIn company page | blocked: "limit for starting new conversations with pages" |
+| Conduct, Abacum, The Mobile-First Company | 22 / 11 / 10 | LinkedIn company page | no Message button |
+| Summ.link, Hanover Park, Fulcrum, The Knot Worldwide | 8 / 8 / 11 / 4 featured | not tried after the page limit | open |
+
+Checked and dropped: Coastal Community Bank (page changed, 3 roles), Possible Finance (page now matches its Ashby board).
+The Knot Worldwide: "Sales Executive" (London) and "Senior Manager, Consolidations and Reporting" (New York) are still featured but return errors from the Greenhouse job API (an open role on the same board returns fine), so the round-1 message is still accurate.
