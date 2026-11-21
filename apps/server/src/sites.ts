@@ -3,13 +3,17 @@ import { SourceError, SyncAbortedError, type SourceConfig, type SourceKind } fro
 import type { Db } from "./db.js"
 import type { PublishMode, RunReport, SyncRequest } from "./framer.js"
 import { decryptSecret, encryptSecret, maskSecret } from "./secrets.js"
+import { WebflowApiError, type WebflowPublishMode, type WebflowRunReport, type WebflowSyncRequest } from "./webflow.js"
 
 export const SOURCE_KINDS: SourceKind[] = ["lever", "greenhouse", "ashby", "personio"]
 export const PUBLISH_MODES: PublishMode[] = ["sync-only", "publish-if-clean", "always-publish"]
+export const WEBFLOW_PUBLISH_MODES: WebflowPublishMode[] = ["sync-only", "publish-jobs"]
+export type Platform = "framer" | "webflow"
 
-/** What the rest of the server may do with Framer. Faked in tests. */
+/** What the rest of the server may do with Framer and Webflow. Faked in tests. */
 export interface FramerGateway {
     sync(req: SyncRequest): Promise<RunReport>
+    syncWebflow?(req: WebflowSyncRequest): Promise<WebflowRunReport>
 }
 
 export class InputError extends Error {}
@@ -40,7 +44,12 @@ export interface SiteInput {
 
 export interface SiteView {
     id: string
-    projectUrl: string
+    platform: Platform
+    /** Webflow site name; null for Framer sites. */
+    siteName: string | null
+    /** True after Webflow access was revoked; the token is already deleted. */
+    disconnected: boolean
+    projectUrl: string | null
     apiKeyHint: string
     source: SourceConfig
     collectionName: string
@@ -56,6 +65,9 @@ const SITE_COLUMNS = `s.*, l.expires_at as licence_expires_at,
 function toView(row: any): SiteView {
     return {
         id: row.id,
+        platform: row.platform ?? "framer",
+        siteName: row.site_name ?? null,
+        disconnected: row.disconnected_at != null,
         projectUrl: row.project_url,
         apiKeyHint: row.api_key_hint,
         source: { kind: row.source_kind, handle: row.source_handle, options: row.source_options },
@@ -114,7 +126,7 @@ export async function tokenMatches(db: Db, id: string, token: string): Promise<b
     return a.length === b.length && timingSafeEqual(a, b)
 }
 
-export async function updateSite(db: Db, id: string, patch: { publishMode?: PublishMode; source?: SourceConfig }): Promise<void> {
+export async function updateSite(db: Db, id: string, patch: { publishMode?: PublishMode | WebflowPublishMode; source?: SourceConfig }): Promise<void> {
     if (patch.publishMode) await db.query(`update sites set publish_mode = $2 where id = $1`, [id, patch.publishMode])
     if (patch.source) {
         await db.query(`update sites set source_kind = $2, source_handle = $3, source_options = $4 where id = $1`, [
@@ -161,6 +173,12 @@ export async function listRuns(db: Db, siteId: string, limit = 20): Promise<RunV
 /** A message safe to show the customer: our own errors verbatim, anything else generic. */
 function customerMessage(err: unknown): string {
     if (err instanceof SourceError || err instanceof SyncAbortedError || err instanceof InputError) return err.message
+    if (err instanceof WebflowApiError) {
+        if (err.status === 401 || err.status === 403) return "Webflow access was removed for this site. Connect it again at syncroles.com/webflow."
+        if (err.needsCmsPlan) return "This Webflow site has no CMS plan. Upgrade the site plan in Webflow, then sync again."
+        if (err.status === 429 || err.status >= 500) return "Webflow did not respond properly right now. The next run will try again."
+        return "Webflow refused a change. Nothing else was changed after the error."
+    }
     const code = (err as { code?: string })?.code
     if (code === "UNAUTHORIZED") return "Framer rejected the API key. Create a new key in Site Settings > General and reconnect."
     if (code === "PROJECT_CLOSED" || code === "TIMEOUT" || code === "POOL_EXHAUSTED") return "Framer could not open the project right now. The next run will try again."
@@ -184,20 +202,38 @@ export async function runSite(
         const { rows } = await db.query(`select * from sites where id = $1`, [siteId])
         const site = rows[0]
         if (!site) throw new InputError("Site not found.")
-        let report: RunReport | null = null
+        let report: RunReport | WebflowRunReport | null = null
         let message: string | null = null
+        if (site.disconnected_at) throw new InputError("Webflow access was removed for this site. Connect it again at syncroles.com/webflow.")
+        const source = { kind: site.source_kind, handle: site.source_handle, options: site.source_options }
         try {
-            report = await framer.sync({
-                projectUrl: site.project_url,
-                apiKey: decryptSecret(site.api_key_enc),
-                source: { kind: site.source_kind, handle: site.source_handle, options: site.source_options },
-                collectionName: site.collection_name,
-                publishMode: site.publish_mode,
-                allowEmptySource: options.allowEmptySource,
-            })
+            if (site.platform === "webflow") {
+                if (!framer.syncWebflow) throw new Error("Webflow sync is not configured on this server.")
+                report = await framer.syncWebflow({
+                    siteId: site.webflow_site_id,
+                    accessToken: decryptSecret(site.api_key_enc),
+                    source,
+                    collectionName: site.collection_name,
+                    publishMode: site.publish_mode,
+                    allowEmptySource: options.allowEmptySource,
+                })
+            } else {
+                report = await framer.sync({
+                    projectUrl: site.project_url,
+                    apiKey: decryptSecret(site.api_key_enc),
+                    source,
+                    collectionName: site.collection_name,
+                    publishMode: site.publish_mode,
+                    allowEmptySource: options.allowEmptySource,
+                })
+            }
             message = report.publishSkippedReason
         } catch (err) {
             message = customerMessage(err)
+            // Revoked or uninstalled: the token is useless, so delete it now (Webflow Marketplace requirement).
+            if (site.platform === "webflow" && err instanceof WebflowApiError && err.status === 401) {
+                await db.query(`update sites set api_key_enc = '', disconnected_at = now() where id = $1`, [siteId])
+            }
             // Error name and code only: messages from other libraries are not trusted to be free of secrets.
             console.error(`run failed site=${siteId} ${(err as Error)?.name} ${(err as { code?: string })?.code ?? ""}`)
         }
@@ -221,7 +257,7 @@ export async function runSite(
 export async function dueSites(db: Db, intervalMinutes: number): Promise<string[]> {
     const { rows } = await db.query(
         `select s.id from sites s join licences l on l.id = s.licence_id
-         where l.status = 'active' and l.expires_at > now()
+         where l.status = 'active' and l.expires_at > now() and s.disconnected_at is null
            and (s.last_run_at is null or s.last_run_at < now() - make_interval(mins => $1))
          order by s.last_run_at nulls first limit 50`,
         [intervalMinutes]

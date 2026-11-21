@@ -53,5 +53,27 @@ export async function migrate(db: Db): Promise<void> {
         );
         create index if not exists runs_site_idx on runs (site_id, id desc);
         alter table licences add column if not exists stripe_subscription_id text;
+
+        -- Webflow sites share the sites table. For them api_key_enc holds the encrypted OAuth token.
+        alter table sites add column if not exists platform text not null default 'framer';
+        alter table sites add column if not exists webflow_site_id text unique;
+        alter table sites add column if not exists site_name text;
+        alter table sites add column if not exists disconnected_at timestamptz;
+        alter table sites alter column framer_project_id drop not null;
+        alter table sites alter column project_url drop not null;
+        alter table sites drop constraint if exists sites_publish_mode_check;
+        alter table sites add constraint sites_publish_mode_check
+            check (publish_mode in ('sync-only', 'publish-if-clean', 'always-publish', 'publish-jobs'));
+        alter table sites drop constraint if exists sites_platform_check;
+        alter table sites add constraint sites_platform_check check (platform in ('framer', 'webflow'));
+
+        -- Between the Webflow OAuth callback and the setup form. Swept after an hour.
+        create table if not exists webflow_pending (
+            id uuid primary key default gen_random_uuid(),
+            token_hash text not null unique,
+            access_token_enc text not null,
+            sites jsonb not null,
+            created_at timestamptz not null default now()
+        );
     `)
 }

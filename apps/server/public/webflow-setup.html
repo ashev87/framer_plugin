@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Set up SyncRoles for Webflow</title>
+<meta name="robots" content="noindex">
+<meta name="referrer" content="no-referrer">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="/fonts/geist.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/styles.css">
+<meta name="theme-color" content="#0E1014">
+</head>
+<body>
+<header><a class="logo" href="/"><svg viewBox="0 0 48 48" fill="currentColor" aria-hidden="true"><rect x="7" y="9" width="27" height="8" rx="4"/><rect x="14" y="20" width="27" height="8" rx="4"/><rect x="7" y="31" width="27" height="8" rx="4"/></svg>SyncRoles</a><nav><a href="/webflow">Webflow</a><a href="/docs#webflow">Setup guide</a></nav></header>
+<main>
+<div class="prose">
+<p class="error-msg" id="err" hidden></p>
+
+<section id="none" hidden>
+<h1>Connect your Webflow site</h1>
+<p class="lead">This browser has no connected site yet.</p>
+<div class="cta"><a class="btn" href="/webflow/install">Connect Webflow</a></div>
+</section>
+
+<section id="setup" hidden>
+<h1>Set up your jobs sync</h1>
+<p class="lead">Choose the site and your job board. You see the roles before anything is written to Webflow.</p>
+<form class="form" id="setupForm">
+<label>Webflow site<select id="site" required></select></label>
+<label>Hiring tool<select id="kind"><option value="ashby">Ashby</option><option value="greenhouse">Greenhouse</option><option value="lever">Lever</option><option value="personio">Personio</option></select></label>
+<label>Job-board name <small id="hint">the last part of jobs.ashbyhq.com/<b>your-company</b></small><input type="text" id="handle" required autocomplete="off" placeholder="your-company"></label>
+<label class="check" id="euRow" hidden><input type="checkbox" id="eu"> My Lever board is on jobs.eu.lever.co</label>
+<div><button class="btn ghost" type="button" id="findBtn">Find jobs</button></div>
+<div class="status" id="preview" hidden></div>
+<label>Collection name <small>created if it does not exist</small><input type="text" id="collection" value="Jobs" maxlength="60"></label>
+<fieldset><legend>Publishing</legend>
+<label class="radio"><input type="radio" name="mode" value="publish-jobs" checked> Publish the jobs <small>Only job items go live. Nothing else on the site is published.</small></label>
+<label class="radio"><input type="radio" name="mode" value="sync-only"> I publish myself <small>Jobs go live with your next site publish.</small></label>
+</fieldset>
+<div><button class="btn" type="submit" id="createBtn" disabled>Create collection and sync</button></div>
+</form>
+</section>
+
+<section id="manage" hidden>
+<h1 id="siteTitle">Jobs sync</h1>
+<div class="status" id="state"></div>
+<div class="cta"><button class="btn" id="syncBtn" type="button">Sync now</button><a class="btn ghost" href="/webflow/install">Connect another site</a></div>
+<h2>Automatic sync</h2>
+<p id="licenceText">Paste your licence key to sync every 15 minutes. No key yet? <a href="/webflow#pricing">Buy Auto-sync</a>.</p>
+<form class="keyrow" id="licenceForm"><input class="key" id="licence" placeholder="SR-XXXX-XXXX-XXXX-XXXX" autocomplete="off" aria-label="Licence key"><button class="buy" type="submit">Add key</button></form>
+<h2>Publishing</h2>
+<form class="form" id="modeForm">
+<label class="radio"><input type="radio" name="mmode" value="publish-jobs"> Publish the jobs <small>Only job items go live.</small></label>
+<label class="radio"><input type="radio" name="mmode" value="sync-only"> I publish myself</label>
+</form>
+<h2>Recent runs</h2>
+<ul class="runs" id="runs"></ul>
+<h2>Disconnect</h2>
+<p>Revokes SyncRoles' access at Webflow and deletes the token, settings and run log here. The Jobs collection stays in your site.</p>
+<div class="cta"><button class="btn ghost" id="disconnectBtn" type="button">Disconnect this site</button></div>
+</section>
+</div>
+</main>
+<footer><span>© 2026 SyncRoles</span><a href="/docs#webflow">Setup guide</a><a href="/privacy">Privacy</a><a href="/impressum">Impressum</a><a href="/manage">Manage subscription</a></footer>
+<script>
+const $ = id => document.getElementById(id)
+const STORE = "syncroles.webflow.sites"
+const saved = () => { try { return JSON.parse(localStorage.getItem(STORE) || "[]") } catch { return [] } }
+const save = list => { try { localStorage.setItem(STORE, JSON.stringify(list)) } catch {} }
+const showErr = m => { $("err").textContent = m; $("err").hidden = !m }
+async function call(method, url, token, body) {
+  const res = await fetch(url, { method, headers: { "content-type": "application/json", authorization: `Bearer ${token}` }, body: body ? JSON.stringify(body) : undefined })
+  const data = await res.json().catch(() => ({}))
+  if (!res.ok) throw new Error(data.error || "Something went wrong.")
+  return data
+}
+const HINTS = { ashby: "jobs.ashbyhq.com/", greenhouse: "boards.greenhouse.io/", lever: "jobs.lever.co/", personio: "" }
+function source() {
+  const kind = $("kind").value, options = {}
+  if (kind === "lever" && $("eu").checked) options.region = "eu"
+  return { kind, handle: $("handle").value.trim(), options }
+}
+
+// --- setup (after Webflow sign-in) ---
+const setupToken = new URLSearchParams(location.hash.slice(1)).get("setup")
+if (setupToken) history.replaceState(null, "", location.pathname)
+
+async function startSetup() {
+  $("setup").hidden = false
+  try {
+    const { sites } = await call("GET", "/webflow/api/pending", setupToken)
+    $("site").innerHTML = sites.map(s => `<option value="${s.id}">${s.name.replace(/</g, "&lt;")}</option>`).join("")
+  } catch (e) { showErr(e.message); $("setupForm").hidden = true }
+  $("kind").onchange = () => {
+    const k = $("kind").value
+    $("hint").innerHTML = k === "personio" ? "the first part of <b>your-company</b>.jobs.personio.de" : `the last part of ${HINTS[k]}<b>your-company</b>`
+    $("euRow").hidden = k !== "lever"
+    $("createBtn").disabled = true
+  }
+  $("handle").oninput = () => { $("createBtn").disabled = true }
+  $("findBtn").onclick = async () => {
+    showErr("")
+    $("preview").hidden = false; $("preview").textContent = "Looking for jobs…"
+    try {
+      const r = await call("POST", "/webflow/api/preview", setupToken, source())
+      $("preview").innerHTML = `<b>${r.count} open role${r.count === 1 ? "" : "s"} found.</b><ul class="runs">` +
+        r.jobs.map(j => `<li>${j.title.replace(/</g, "&lt;")}${j.location ? " · " + j.location.replace(/</g, "&lt;") : ""}</li>`).join("") + "</ul>"
+      $("createBtn").disabled = false
+    } catch (e) { $("preview").hidden = true; showErr(e.message) }
+  }
+  $("setupForm").onsubmit = async ev => {
+    ev.preventDefault(); showErr("")
+    $("createBtn").disabled = true; $("createBtn").textContent = "Syncing…"
+    try {
+      const r = await call("POST", "/webflow/api/sites", setupToken, {
+        siteId: $("site").value, source: source(), collectionName: $("collection").value,
+        publishMode: document.querySelector("input[name=mode]:checked").value })
+      save([{ id: r.site.id, token: r.token, name: r.site.siteName }, ...saved().filter(s => s.id !== r.site.id)])
+      $("setup").hidden = true
+      showManage(r.site.id)
+    } catch (e) { showErr(e.message); $("createBtn").disabled = false; $("createBtn").textContent = "Create collection and sync" }
+  }
+}
+
+// --- manage (this browser holds the site's token) ---
+let current = null
+function runLine(r) {
+  const when = new Date(r.finishedAt).toLocaleString()
+  if (r.status === "failed") return `<li class="warn">${when} · failed · ${(r.message || "").replace(/</g, "&lt;")}</li>`
+  return `<li>${when} · ${r.jobsInSource} in board · +${r.created} ~${r.updated} −${r.removed}${r.published ? " · published" : ""}${r.message ? " · " + r.message.replace(/</g, "&lt;") : ""}</li>`
+}
+async function refresh() {
+  const { site, runs } = await call("GET", `/api/sites/${current.id}`, current.token)
+  $("siteTitle").textContent = `Jobs sync for ${site.siteName || "your site"}`
+  $("state").innerHTML = site.disconnected
+    ? `<p class="warn">Webflow access was removed. <a href="/webflow/install">Connect again</a>.</p>`
+    : `<p><b>${site.source.kind}</b> · ${site.source.handle.replace(/</g, "&lt;")} → collection “${site.collectionName.replace(/</g, "&lt;")}”</p>` +
+      `<p class="${site.scheduled ? "ok" : "muted"}">${site.scheduled ? `Automatic sync every 15 minutes, licence until ${new Date(site.licenceExpiresAt).toLocaleDateString()}` : "Manual sync only. Add a licence key for automatic sync."}</p>`
+  $("licenceForm").hidden = site.scheduled
+  document.querySelectorAll("input[name=mmode]").forEach(i => { i.checked = i.value === site.publishMode })
+  $("runs").innerHTML = runs.map(runLine).join("") || "<li>No runs yet.</li>"
+}
+function showManage(id) {
+  current = saved().find(s => s.id === id) || saved()[0]
+  if (!current) { $("none").hidden = false; return }
+  $("manage").hidden = false
+  refresh().catch(e => showErr(e.message))
+}
+$("syncBtn").onclick = async () => {
+  showErr(""); $("syncBtn").disabled = true; $("syncBtn").textContent = "Syncing…"
+  try { await call("POST", `/api/sites/${current.id}/sync`, current.token, {}); await refresh() } catch (e) { showErr(e.message) }
+  $("syncBtn").disabled = false; $("syncBtn").textContent = "Sync now"
+}
+$("licenceForm").onsubmit = async ev => {
+  ev.preventDefault(); showErr("")
+  try { await call("POST", `/api/sites/${current.id}/licence`, current.token, { key: $("licence").value }); await refresh() } catch (e) { showErr(e.message) }
+}
+document.querySelectorAll("input[name=mmode]").forEach(i => i.onchange = async () => {
+  try { await call("PATCH", `/api/sites/${current.id}`, current.token, { publishMode: i.value }) } catch (e) { showErr(e.message) }
+})
+$("disconnectBtn").onclick = async () => {
+  if (!confirm("Disconnect this site? Automatic sync stops and the stored Webflow token is deleted.")) return
+  try {
+    await call("DELETE", `/webflow/api/sites/${current.id}`, current.token)
+    save(saved().filter(s => s.id !== current.id))
+    location.reload()
+  } catch (e) { showErr(e.message) }
+}
+
+if (setupToken) startSetup()
+else showManage()
+</script>
+</body>
+</html>

@@ -6,6 +6,8 @@ import { migrate, openDb } from "./db.js"
 import { syncToFramer } from "./framer.js"
 import { probe } from "./probe.js"
 import { startScheduler } from "./scheduler.js"
+import { syncToWebflow } from "./webflow.js"
+import { createWebflowRoutes, type WebflowAppConfig } from "./webflow-oauth.js"
 import { createBilling, portalUrl, resendLicenceEmail, type StripeConfig } from "./stripe.js"
 
 const port = Number(process.env.PORT ?? 3000)
@@ -21,6 +23,8 @@ const PAGES: Record<string, { file: string; type: string }> = {
     "/thanks": { file: "thanks.html", type: "text/html; charset=utf-8" },
     "/manage": { file: "manage.html", type: "text/html; charset=utf-8" },
     "/docs": { file: "docs.html", type: "text/html; charset=utf-8" },
+    "/webflow": { file: "webflow.html", type: "text/html; charset=utf-8" },
+    "/webflow/setup": { file: "webflow-setup.html", type: "text/html; charset=utf-8" },
     "/styles.css": { file: "styles.css", type: "text/css; charset=utf-8" },
     "/favicon.svg": { file: "favicon.svg", type: "image/svg+xml" },
     "/favicon.ico": { file: "favicon.svg", type: "image/svg+xml" },
@@ -46,7 +50,15 @@ if (databaseUrl) {
     }
     const db = openDb(databaseUrl)
     await migrate(db)
-    const framer = { sync: syncToFramer }
+    const framer = { sync: syncToFramer, syncWebflow: (req: Parameters<typeof syncToWebflow>[0]) => syncToWebflow(req) }
+    const { WEBFLOW_CLIENT_ID, WEBFLOW_CLIENT_SECRET } = process.env
+    const webflowApp: WebflowAppConfig | null =
+        WEBFLOW_CLIENT_ID && WEBFLOW_CLIENT_SECRET
+            ? { clientId: WEBFLOW_CLIENT_ID, clientSecret: WEBFLOW_CLIENT_SECRET,
+                redirectUri: process.env.WEBFLOW_REDIRECT_URI ?? `${process.env.SITE_URL ?? "https://syncroles.com"}/webflow/callback` }
+            : null
+    if (!webflowApp) console.log("WEBFLOW_CLIENT_ID / WEBFLOW_CLIENT_SECRET not set: Webflow install shows 'coming soon'")
+    app.route("/", createWebflowRoutes({ db, gateway: framer, config: webflowApp }))
     const { STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET } = process.env
     const billing: StripeConfig | null =
         STRIPE_SECRET_KEY && STRIPE_WEBHOOK_SECRET

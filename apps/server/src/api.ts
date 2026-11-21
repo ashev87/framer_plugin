@@ -11,6 +11,7 @@ import {
     listRuns,
     PUBLISH_MODES,
     runSite,
+    WEBFLOW_PUBLISH_MODES,
     SOURCE_KINDS,
     tokenMatches,
     updateSite,
@@ -112,8 +113,16 @@ export function createApi(deps: ApiDeps): Hono {
         const id = await authed(c)
         if (!id) return denied(c)
         const b = await body(c)
+        const current = await getSite(db, id)
+        let publishMode: PublishMode | (typeof WEBFLOW_PUBLISH_MODES)[number] | undefined
+        if (b.publishMode !== undefined) {
+            if (current?.platform === "webflow") {
+                if (!WEBFLOW_PUBLISH_MODES.includes(b.publishMode)) throw new InputError("Unknown publish mode.")
+                publishMode = b.publishMode
+            } else publishMode = parsePublishMode(b.publishMode)
+        }
         await updateSite(db, id, {
-            publishMode: b.publishMode === undefined ? undefined : parsePublishMode(b.publishMode),
+            publishMode,
             source: b.source === undefined ? undefined : parseSource(b.source),
         })
         return c.json({ site: await getSite(db, id) })

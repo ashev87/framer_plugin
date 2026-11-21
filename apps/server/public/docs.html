@@ -14,7 +14,7 @@
 <script defer src="https://www.ship-or-die.com/hackathon/verify.js" data-site="346110dbd3385859158d3ab6a95b048164640591"></script>
 </head>
 <body>
-<header><a class="logo" href="/"><svg viewBox="0 0 48 48" fill="currentColor" aria-hidden="true"><rect x="7" y="9" width="27" height="8" rx="4"/><rect x="14" y="20" width="27" height="8" rx="4"/><rect x="7" y="31" width="27" height="8" rx="4"/></svg>SyncRoles</a><nav><a class="hide-s" href="/#how">How it works</a><a class="hide-s" href="/#publishing">Publishing</a><a href="/#pricing">Pricing</a><a href="/docs">Setup guide</a></nav></header>
+<header><a class="logo" href="/"><svg viewBox="0 0 48 48" fill="currentColor" aria-hidden="true"><rect x="7" y="9" width="27" height="8" rx="4"/><rect x="14" y="20" width="27" height="8" rx="4"/><rect x="7" y="31" width="27" height="8" rx="4"/></svg>SyncRoles</a><nav><a class="hide-s" href="/#how">How it works</a><a class="hide-s" href="/#publishing">Publishing</a><a href="/webflow">Webflow</a><a class="hide-s" href="/#pricing">Pricing</a><a href="/docs">Setup guide</a></nav></header>
 <main>
 <div class="prose">
 <h1>Setup guide</h1>
@@ -50,6 +50,17 @@
 <li><strong>Publish when only jobs changed:</strong> SyncRoles publishes after a sync, unless the project already had unpublished page changes.</li>
 <li><strong>Always publish:</strong> publishes after every sync that changed something, including any unfinished design work.</li>
 </ul>
+
+<h2 id="webflow">Webflow</h2>
+<ol>
+<li>Go to <a href="/webflow">syncroles.com/webflow</a> and click <strong>Connect your Webflow site</strong>. Webflow asks you to choose the sites SyncRoles may access. It requests access to your sites list and CMS only.</li>
+<li>Choose the site, your hiring tool and your job-board name (the same handle as above), and click <strong>Find jobs</strong>.</li>
+<li>Choose how publishing should work, then click <strong>Create collection and sync</strong>. SyncRoles creates a <strong>Jobs</strong> collection with the same fields as for Framer, plus <strong>Source ID</strong> and <strong>Sync Hash</strong>, which it uses to track each job. Do not edit those two.</li>
+<li>In the Designer, build your careers list and the Jobs template page from the collection, then publish the site once.</li>
+<li>To sync every 15 minutes, paste your licence key on the same page. That page is also where you sync by hand, change the publishing mode or disconnect.</li>
+</ol>
+<p>The site needs a Webflow site plan with CMS. With <strong>Publish the jobs</strong>, SyncRoles publishes the job items one by one, so other unpublished changes on your site stay unpublished. If the site has never been published, the jobs are saved without publishing until you publish the site once.</p>
+<p class="muted">The management page remembers your site in this browser. To manage it from another browser, click Connect your Webflow site again and set it up once more. The site keeps its licence.</p>
 
 <h2>If something goes wrong</h2>
 <p>If your job board cannot be reached or suddenly returns no jobs at all, SyncRoles changes nothing and records the failure in the run log inside the plugin. Questions: <a href="mailto:info@smartprocesslab.de">info@smartprocesslab.de</a>.</p>
