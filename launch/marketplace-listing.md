@@ -2,6 +2,8 @@
 
 Upload `syncroles-plugin.zip` at https://www.framer.com/marketplace/dashboard/plugins/ and paste the texts below.
 
+**Updated 22 Nov 2026.** Our first customer found SyncRoles by googling "auto sync ashby framer", after Framer's own Ashby plugin made him click sync every time. So the listing now leads with the hiring tools by name and with the difference to the free plugins, and mentions the free careers page checker. What changed: the description's first two paragraphs, the field list, a new "Switching from Framer's Ashby plugin" paragraph, the checker line and the image list.
+
 ## Name
 SyncRoles
 
@@ -15,7 +17,9 @@ CMS
 Paid, with a free tier. Free: manual sync. Auto-sync: $99 per site per year. Agency: $249 per year for five sites. Prices in USD, plus tax where it applies. Bought at https://syncroles.com
 
 ## Description
-SyncRoles keeps your Framer careers page in sync with Lever, Greenhouse, Ashby or Personio. Enter your company's job-board address and open roles land in a Jobs collection in your CMS. New roles appear, closed roles disappear, and nothing is published unless you chose it.
+SyncRoles keeps your Framer careers page in sync with Ashby, Greenhouse, Lever or Personio, automatically. Open roles land in a Jobs collection in your CMS every 15 minutes, closed roles disappear, and nobody has to open Framer and click sync.
+
+**Why not the free job-board plugins?** They import roles when someone opens the plugin and clicks. Between clicks, new roles are missing and closed roles stay online. SyncRoles runs on its own server, so your careers page follows your hiring tool by itself.
 
 **Free: sync with one click.** Pick your hiring tool, type your company's job-board name, check the roles it found, and sync them into your CMS from the plugin.
 
@@ -25,7 +29,11 @@ SyncRoles keeps your Framer careers page in sync with Lever, Greenhouse, Ashby o
 
 **An outage does not empty your page.** If the job board cannot be reached, nothing changes. If it suddenly reports no roles at all, SyncRoles stops and asks you first.
 
-**What you get in the CMS:** title, department, location, employment type, description, apply link and publish date. You design the careers list and job page yourself.
+**What you get in the CMS:** title, department, team, location, employment type, remote, compensation (when you publish it), description, job link, apply link and publish date. You design the careers list and job page yourself.
+
+**Switching from Framer's Ashby plugin?** The Jobs collection uses the same field names, so you can point your existing careers list and job page at it without renaming fields.
+
+**Not sure your page is up to date?** The free checker at https://syncroles.com/check compares any careers page with its job board and lists closed roles that are still shown and open roles that are missing.
 
 **What you need:** your job-board address, your Framer project address and a Framer Server API key (Site Settings > General). No API key from your hiring tool.
 
@@ -35,7 +43,9 @@ Setup guide: https://syncroles.com/docs
 Support: info@smartprocesslab.de
 
 ## Images to upload
-1. The "Find jobs" screen with a job list.
-2. The connect screen with the three publishing choices.
-3. The status screen showing an automatic run.
-4. The Jobs collection in the Framer CMS.
+The first image is what people see in search results, so it should say the one thing that matters.
+1. **Cover:** headline "Your Framer careers page, always in sync with Ashby, Greenhouse, Lever or Personio", next to the plugin's status screen after a recent automatic run.
+2. The "Find jobs" screen with a job list.
+3. The connect screen with the three publishing choices.
+4. The Jobs collection in the Framer CMS, with the Team and Job URL fields visible.
+5. A checker result from syncroles.com/check showing closed roles still listed (use a made-up company, not a real one).
