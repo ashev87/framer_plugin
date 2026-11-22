@@ -8,7 +8,8 @@ export const greenhouse: SourceAdapter = {
     async listJobs(config, fetchImpl = fetch) {
         const token = safeHandle(config.handle, "greenhouse")
         // Greenhouse hosts boards in a US and an EU region; the token does not say which.
-        // options.region "eu" asks the EU API first, otherwise the US API, and a 404 falls back to the other.
+        // options.region "eu" asks the EU API first, otherwise the US API. A 404 or an unreachable
+        // host falls back to the other: EU job-board URLs can still be served by the US API.
         const hosts = config.options?.region === "eu"
             ? ["boards-api.eu.greenhouse.io", "boards-api.greenhouse.io"]
             : ["boards-api.greenhouse.io", "boards-api.eu.greenhouse.io"]
@@ -18,7 +19,7 @@ export const greenhouse: SourceAdapter = {
                 data = await getJson(`https://${host}/v1/boards/${token}/jobs?content=true`, "greenhouse", fetchImpl)
                 break
             } catch (err) {
-                if (i === 0 && err instanceof SourceError && err.status === 404) continue
+                if (i === 0 && err instanceof SourceError && (err.status === 404 || err.status === undefined)) continue
                 throw err
             }
         }

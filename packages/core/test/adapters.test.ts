@@ -137,6 +137,17 @@ describe("greenhouse", () => {
         await listJobs({ kind: "greenhouse", handle: "vaulttec", options: { region: "eu" } }, fake(JSON.stringify({ jobs: [item], meta: { total: 1 } }), 200, seen))
         expect(new URL(seen[0]!).hostname).toBe("boards-api.eu.greenhouse.io")
     })
+    it("falls back to the US API when the EU API cannot be reached", async () => {
+        const seen: string[] = []
+        const f = (async (url: any) => {
+            seen.push(String(url))
+            if (String(url).includes(".eu.")) throw new TypeError("fetch failed")
+            return new Response(JSON.stringify({ jobs: [item], meta: { total: 1 } }), { status: 200 })
+        }) as typeof fetch
+        const jobs = await listJobs({ kind: "greenhouse", handle: "summ", options: { region: "eu" } }, f)
+        expect(jobs).toHaveLength(1)
+        expect(new URL(seen.at(-1)!).hostname).toBe("boards-api.greenhouse.io")
+    })
 })
 
 describe("ashby", () => {

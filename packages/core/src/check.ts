@@ -11,6 +11,8 @@ export interface PostingLink {
     /** Visible link text, whitespace collapsed. Often the role title, sometimes "Apply". */
     text: string
     options?: Record<string, string>
+    /** For links without text of their own: the texts of the job card before the link, in page order. */
+    cardTexts?: string[]
 }
 
 export interface CheckResult {
@@ -90,11 +92,17 @@ export function extractPostingLinks(html: string, pageUrl: string): PostingLink[
         const parsed = parsePostingUrl(abs)
         if (!parsed) continue
         let text = cleanLinkText(visibleText(m[4] ?? ""))
-        if (!text) text = cardTitleBefore(html, m.index ?? 0)
+        let card: string[] | undefined
+        if (!text) {
+            card = cardTextsBefore(html, m.index ?? 0)
+            text = guessCardTitle(card)
+        }
         const key = `${parsed.kind}:${parsed.handle.toLowerCase()}:${parsed.id}`
         const prev = out.get(key)
-        // Keep the most descriptive link text seen for the posting.
-        if (!prev || text.length > prev.text.length) out.set(key, { ...parsed, url: abs, text })
+        // Keep the most descriptive link text seen for the posting; own link text beats card text.
+        if (!prev || (prev.cardTexts && !card) || (!!prev.cardTexts === !!card && text.length > prev.text.length)) {
+            out.set(key, { ...parsed, url: abs, text, ...(card ? { cardTexts: card } : {}) })
+        }
     }
     return [...out.values()]
 }
@@ -124,9 +132,13 @@ export function compareWithBoard(html: string, pageUrl: string, source: SourceCo
     const openIds = new Set(jobs.map(j => j.id.toLowerCase()))
     const linkedIds = new Set(links.map(l => l.id))
     const pageText = normalise(visibleText(html))
+    const offset = learnCardTitleOffset(links, jobs)
     const closedButListed = links
         .filter(l => !openIds.has(l.id))
-        .map(l => ({ title: l.text || "(untitled link)", url: l.url }))
+        .map(l => {
+            const learned = offset !== null && l.cardTexts ? l.cardTexts[l.cardTexts.length - 1 - offset] : undefined
+            return { title: learned || l.text || "(untitled link)", url: l.url }
+        })
     const openButMissing = jobs
         .filter(j => !linkedIds.has(j.id.toLowerCase()) && !pageText.includes(normalise(j.title)))
         .map(j => ({ title: j.location ? `${j.title} · ${j.location}` : j.title, url: j.jobUrl }))
@@ -162,21 +174,50 @@ export function linksToBoardHome(html: string, pageUrl: string, source: SourceCo
     return false
 }
 
+const CTA = /^(apply|apply now|view|view role|view job|open|new|learn more|read more|details|see details)$/i
+const LOCATION_LIKE = /\s·\s|\bremote\b|\bhybrid\b|\bin[- ]office\b|\bon[- ]?site\b|\bfull[- ]time\b|\bpart[- ]time\b/i
+
 /**
- * For links with no text of their own (an icon or an empty overlay on a job card),
- * the role title is usually the last heading or text before the link inside the same card.
+ * For links with no text of their own (an icon, "View role", an empty overlay on a job card):
+ * the texts of the card before the link. The card starts after the previous link closes.
  */
-function cardTitleBefore(html: string, linkStart: number): string {
-    const before = html.slice(Math.max(0, linkStart - 3000), linkStart)
-    // Prefer the nearest real heading, then the nearest other text element.
-    for (const re of [/<(h[1-6])\b[^>]*>([^<]{3,120})<\/\1>/gi, /<(p|div|span)\b[^>]*>([^<]{3,120})<\/\1>/gi]) {
-        const found = [...before.matchAll(re)]
-        for (let i = found.length - 1; i >= 0; i--) {
-            const t = cleanLinkText(decodeHTML(found[i]![2] ?? "").replace(/\s+/g, " ").trim())
-            if (t && !/^(apply|view|open|new|remote|full[- ]time|part[- ]time)$/i.test(t)) return t
-        }
+function cardTextsBefore(html: string, linkStart: number): string[] {
+    let before = html.slice(Math.max(0, linkStart - 3000), linkStart)
+    const lastLink = before.lastIndexOf("</a>")
+    if (lastLink >= 0) before = before.slice(lastLink + 4)
+    before = before.replace(/<(script|style|noscript|svg)\b[\s\S]*?<\/\1>/gi, " ")
+    const texts: string[] = []
+    for (const m of before.matchAll(/>([^<>]+)</g)) {
+        const t = decodeHTML(m[1] ?? "").replace(/\s+/g, " ").trim()
+        if (t.length >= 2 && t.length <= 120 && !CTA.test(t)) texts.push(t)
     }
-    return ""
+    return texts
+}
+
+/** Best guess at a role title among card texts: the longest one that does not read like a location or job type. */
+function guessCardTitle(texts: string[]): string {
+    const plain = texts.filter(t => !LOCATION_LIKE.test(t))
+    const pool = plain.length ? plain : texts
+    return pool.reduce((best, t) => (t.length > best.length ? t : best), "")
+}
+
+/**
+ * Cards on one page share a layout. The open roles whose card holds their real title show which
+ * card text is the title (counted from the link back), so the same position names the closed ones.
+ */
+function learnCardTitleOffset(links: PostingLink[], jobs: Job[]): number | null {
+    const titles = new Map(jobs.map(j => [j.id.toLowerCase(), normalise(j.title)]))
+    const votes = new Map<number, number>()
+    for (const l of links) {
+        const title = titles.get(l.id)
+        if (!title || !l.cardTexts) continue
+        const i = l.cardTexts.map(normalise).lastIndexOf(title)
+        if (i < 0) continue
+        const off = l.cardTexts.length - 1 - i
+        votes.set(off, (votes.get(off) ?? 0) + 1)
+    }
+    const best = [...votes.entries()].sort((a, b) => b[1] - a[1])[0]
+    return best ? best[0] : null
 }
 
 /** Link text without CTA words, and without the doubled copy responsive layouts often render. */
