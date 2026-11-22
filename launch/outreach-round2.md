@@ -207,3 +207,19 @@ Generic Framer agencies found on LinkedIn (weaker, no careers-page link yet): Fl
 
 ## Replies (checked 21 Nov, 16:20)
 No replies yet from any company by email or LinkedIn. On X, Robin (@robingeekydev) replied to our reply: "This looks useful!"
+
+## 22 Nov 2026 (Sunday)
+
+Replies: none by email or LinkedIn. On X, Hitesh Goel (@theweekendyogi, building ChaseClerk) asked whether we write more pages around queries like "auto sync ashby framer" (answered: yes, one page per hiring tool), and Artyom (@sklyarov, hackathon entrant) asked to connect (answered). Two more replies under "drop your startup" posts (@amitkushh, @anupamrjp).
+
+LinkedIn page messages are still blocked ("limit for starting new conversations with pages"), so this batch waits. Checked today with syncroles.com/check:
+
+| Company | Finding | Message to send |
+|---|---|---|
+| Fulcrum | 3 linked roles no longer on the public Ashby board (Senior Customer Success Manager, Forward Deployed AI Engineer, Senior Manager, RevOps); 4 open roles missing (e.g. Senior GTM Recruiter, Staff Product Designer) | name the roles + link https://syncroles.com/check?url=withfulcrum.com/careers |
+| Hanover Park | page lists 8, Ashby has 10; Product Designer and Founding Design Engineer (NYC) missing | name the two roles + check link |
+| The Knot Worldwide | "Sales Executive" (London) and "Senior Manager, Consolidations and Reporting" (NY) not on the Greenhouse board | round-1 text |
+| Numa | 9 roles, in sync | generic 9-role text |
+| Summ.link (Belgium) | 8 roles on EU Greenhouse; checker shows "no job links" because it does not parse job-boards.eu.greenhouse.io yet | generic 8-role text |
+
+No public email on any of the five sites.
