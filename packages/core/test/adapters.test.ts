@@ -120,6 +120,23 @@ describe("greenhouse", () => {
             listJobs({ kind: "greenhouse", handle: "vaulttec" }, fake(JSON.stringify({ jobs: [item], meta: { total: 2 } })))
         ).rejects.toBeInstanceOf(SourceError)
     })
+    it("falls back to the EU API when the US API has no such board", async () => {
+        const seen: string[] = []
+        const f = (async (url: any) => {
+            seen.push(String(url))
+            return String(url).includes(".eu.")
+                ? new Response(JSON.stringify({ jobs: [item], meta: { total: 1 } }), { status: 200 })
+                : new Response("not found", { status: 404 })
+        }) as typeof fetch
+        const jobs = await listJobs({ kind: "greenhouse", handle: "vaulttec" }, f)
+        expect(jobs).toHaveLength(1)
+        expect(seen.map(u => new URL(u).hostname)).toEqual(["boards-api.greenhouse.io", "boards-api.eu.greenhouse.io"])
+    })
+    it("asks the EU API first for EU boards", async () => {
+        const seen: string[] = []
+        await listJobs({ kind: "greenhouse", handle: "vaulttec", options: { region: "eu" } }, fake(JSON.stringify({ jobs: [item], meta: { total: 1 } }), 200, seen))
+        expect(new URL(seen[0]!).hostname).toBe("boards-api.eu.greenhouse.io")
+    })
 })
 
 describe("ashby", () => {

@@ -55,12 +55,13 @@ export function parsePostingUrl(raw: string): Omit<PostingLink, "url" | "text"> 
             ...(host === "jobs.eu.lever.co" ? { options: { region: "eu" } } : {}),
         }
     }
-    if (/^(job-)?boards\.greenhouse\.io$/.test(host) && p0 && p1 === "jobs" && /^\d+$/.test(p2)) {
-        return { kind: "greenhouse", handle: decodeURIComponent(p0), id: p2 }
+    const ghEu = /^(job-)?boards\.eu\.greenhouse\.io$/.test(host)
+    if ((ghEu || /^(job-)?boards\.greenhouse\.io$/.test(host)) && p0 && p1 === "jobs" && /^\d+$/.test(p2)) {
+        return { kind: "greenhouse", handle: decodeURIComponent(p0), id: p2, ...(ghEu ? { options: { region: "eu" } } : {}) }
     }
     const gh = u.searchParams.get("gh_jid")
-    if (/^(job-)?boards\.greenhouse\.io$/.test(host) && p0 && gh && /^\d+$/.test(gh)) {
-        return { kind: "greenhouse", handle: decodeURIComponent(p0), id: gh }
+    if ((ghEu || /^(job-)?boards\.greenhouse\.io$/.test(host)) && p0 && gh && /^\d+$/.test(gh)) {
+        return { kind: "greenhouse", handle: decodeURIComponent(p0), id: gh, ...(ghEu ? { options: { region: "eu" } } : {}) }
     }
     const personio = host.match(/^([a-z0-9-]+)\.jobs\.personio\.(de|com)$/)
     if (personio && personio[1] && p0 === "job" && /^\d+$/.test(p1)) {
@@ -88,7 +89,8 @@ export function extractPostingLinks(html: string, pageUrl: string): PostingLink[
         }
         const parsed = parsePostingUrl(abs)
         if (!parsed) continue
-        const text = cleanLinkText(visibleText(m[4] ?? ""))
+        let text = cleanLinkText(visibleText(m[4] ?? ""))
+        if (!text) text = cardTitleBefore(html, m.index ?? 0)
         const key = `${parsed.kind}:${parsed.handle.toLowerCase()}:${parsed.id}`
         const prev = out.get(key)
         // Keep the most descriptive link text seen for the posting.
@@ -158,6 +160,23 @@ export function linksToBoardHome(html: string, pageUrl: string, source: SourceCo
         if (source.kind === "personio" && host.startsWith(`${handle}.jobs.personio.`)) return true
     }
     return false
+}
+
+/**
+ * For links with no text of their own (an icon or an empty overlay on a job card),
+ * the role title is usually the last heading or text before the link inside the same card.
+ */
+function cardTitleBefore(html: string, linkStart: number): string {
+    const before = html.slice(Math.max(0, linkStart - 3000), linkStart)
+    // Prefer the nearest real heading, then the nearest other text element.
+    for (const re of [/<(h[1-6])\b[^>]*>([^<]{3,120})<\/\1>/gi, /<(p|div|span)\b[^>]*>([^<]{3,120})<\/\1>/gi]) {
+        const found = [...before.matchAll(re)]
+        for (let i = found.length - 1; i >= 0; i--) {
+            const t = cleanLinkText(decodeHTML(found[i]![2] ?? "").replace(/\s+/g, " ").trim())
+            if (t && !/^(apply|view|open|new|remote|full[- ]time|part[- ]time)$/i.test(t)) return t
+        }
+    }
+    return ""
 }
 
 /** Link text without CTA words, and without the doubled copy responsive layouts often render. */

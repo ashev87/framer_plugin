@@ -22,6 +22,7 @@ describe("parsePostingUrl", () => {
         expect(parsePostingUrl("https://job-boards.greenhouse.io/acme/jobs/4674376008")).toEqual({ kind: "greenhouse", handle: "acme", id: "4674376008" })
         expect(parsePostingUrl("https://boards.greenhouse.io/acme?gh_jid=123")).toEqual({ kind: "greenhouse", handle: "acme", id: "123" })
         expect(parsePostingUrl("https://acme.jobs.personio.de/job/42?language=en")).toEqual({ kind: "personio", handle: "acme", id: "42" })
+        expect(parsePostingUrl("https://job-boards.eu.greenhouse.io/acme/jobs/77")).toEqual({ kind: "greenhouse", handle: "acme", id: "77", options: { region: "eu" } })
     })
     it("ignores board home pages and other links", () => {
         expect(parsePostingUrl("https://jobs.ashbyhq.com/acme")).toBeNull()
@@ -35,6 +36,15 @@ describe("cleanLinkText", () => {
         expect(cleanLinkText("Sales Executive London View Role Sales Executive London View Role")).toBe("Sales Executive London")
         expect(cleanLinkText("Product Engineer Apply now")).toBe("Product Engineer")
         expect(cleanLinkText("Apply")).toBe("")
+    })
+})
+
+describe("extractPostingLinks on cards without link text", () => {
+    it("takes the title from the card", () => {
+        const html = `<div class="card"><h3>Senior Customer Success Manager</h3><p>New York</p><a href="https://jobs.ashbyhq.com/acme/${A}"></a></div>`
+        expect(extractPostingLinks(html, "https://acme.com")[0]?.text).toBe("Senior Customer Success Manager")
+        const html2 = `<div class="card"><h3>Senior Customer Success Manager</h3><a href="https://jobs.ashbyhq.com/acme/${A}"><svg></svg></a></div>`
+        expect(extractPostingLinks(html2, "https://acme.com")[0]?.text).toBe("Senior Customer Success Manager")
     })
 })
 

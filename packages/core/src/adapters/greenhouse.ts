@@ -7,11 +7,21 @@ export const greenhouse: SourceAdapter = {
     kind: "greenhouse",
     async listJobs(config, fetchImpl = fetch) {
         const token = safeHandle(config.handle, "greenhouse")
-        const data: any = await getJson(
-            `https://boards-api.greenhouse.io/v1/boards/${token}/jobs?content=true`,
-            "greenhouse",
-            fetchImpl
-        )
+        // Greenhouse hosts boards in a US and an EU region; the token does not say which.
+        // options.region "eu" asks the EU API first, otherwise the US API, and a 404 falls back to the other.
+        const hosts = config.options?.region === "eu"
+            ? ["boards-api.eu.greenhouse.io", "boards-api.greenhouse.io"]
+            : ["boards-api.greenhouse.io", "boards-api.eu.greenhouse.io"]
+        let data: any
+        for (const [i, host] of hosts.entries()) {
+            try {
+                data = await getJson(`https://${host}/v1/boards/${token}/jobs?content=true`, "greenhouse", fetchImpl)
+                break
+            } catch (err) {
+                if (i === 0 && err instanceof SourceError && err.status === 404) continue
+                throw err
+            }
+        }
         if (!Array.isArray(data?.jobs)) throw new SourceError("Greenhouse returned an unexpected response.", "greenhouse")
         const total = data.meta?.total
         if (typeof total === "number" && total !== data.jobs.length) {
