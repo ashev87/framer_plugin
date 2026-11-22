@@ -255,3 +255,9 @@ Then The Knot Worldwide (round-1 text), Numa and Summ.link (generic texts).
 - 404 on /careers: Stylus Medicine, Kouper Health, SkySafe.
 
 Takeaway: the out-of-sync pattern is mostly an Ashby thing. Keep future scans on Ashby links first.
+
+### Sent early (Sun 22 Nov, 09:50)
+
+- LinkedIn page messages still blocked ("limit for starting new conversations with pages"), checked on Fulcrum's correct page linkedin.com/company/fulcrumtechincorporated (withfulcrum is not their page).
+- Fulcrum: emailed hello@withfulcrum.com from Gmail with the Fulcrum text above (subject "3 closed roles still on your careers page").
+- Hanover Park (linkedin.com/company/hanoverpark): no public email. Afresh (linkedin.com/company/afreshtechnologies): only support@ for grocery customers, not used. Both wait for LinkedIn.
