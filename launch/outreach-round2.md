@@ -220,6 +220,38 @@ LinkedIn page messages are still blocked ("limit for starting new conversations 
 | Hanover Park | page lists 8, Ashby has 10; Product Designer and Founding Design Engineer (NYC) missing | name the two roles + check link |
 | The Knot Worldwide | "Sales Executive" (London) and "Senior Manager, Consolidations and Reporting" (NY) not on the Greenhouse board | round-1 text |
 | Numa | 9 roles, in sync | generic 9-role text |
-| Summ.link (Belgium) | 8 roles on EU Greenhouse; checker shows "no job links" because it does not parse job-boards.eu.greenhouse.io yet | generic 8-role text |
+| Summ.link (Belgium) | 8 roles on EU Greenhouse, in sync (checker reads EU boards since 22 Nov) | generic 8-role text |
 
 No public email on any of the five sites.
+
+## Monday 23 Nov: send queue (LinkedIn page messages, then the scan leads)
+
+Fixed on 22 Nov and checked live: the checker now reads EU Greenhouse boards (Summ.link: 8 of 8 in sync) and names closed roles on cards whose only link text is "View role" (Fulcrum below).
+
+**Fulcrum** (linkedin.com/company/withfulcrum, topic "Other")
+
+> Hi Fulcrum team, I ran your careers page through a free checker I built. Three roles on the page are no longer on your public Ashby board: Senior Customer Success Manager, Forward Deployed AI Engineer and Senior Manager, RevOps. Four open roles aren't on the page yet, including Senior GTM Recruiter and Staff Product Designer. Full list: https://syncroles.com/check?url=withfulcrum.com/careers
+> I make SyncRoles, a Framer plugin that keeps the page in sync with Ashby automatically, so closed roles drop off and new ones appear. Happy to set it up for you if useful. Andriy
+
+**Hanover Park**
+
+> Hi Hanover Park team, quick heads-up from a free check of your careers page: Ashby has 10 open roles, the page shows 8. Product Designer and Founding Design Engineer (NYC) are missing: https://syncroles.com/check?url=hanoverpark.com/careers
+> I make SyncRoles, a Framer plugin that syncs the page with Ashby on a schedule, so this doesn't drift again. Happy to help set it up. Andriy
+
+**Afresh** (new, from the Greenhouse/Lever scan; Framer site, 12 open roles)
+
+> Hi Afresh team, I checked your careers page against your Greenhouse board: 11 of 12 roles are there, but Staff Data Engineer, Analytics is open on Greenhouse and not on the page: https://syncroles.com/check?url=afresh.com/company/careers
+> I make SyncRoles, a Framer plugin that keeps the page in sync with Greenhouse automatically. Happy to help if it's useful. Andriy
+
+Then The Knot Worldwide (round-1 text), Numa and Summ.link (generic texts).
+
+### Greenhouse/Lever backlink scan (22 Nov)
+
+28 Framer domains linking to Greenhouse or Lever postings, run through the checker:
+
+- Out of sync: Afresh only (above).
+- In sync: Summ.link (8). Carbon Direct (6), Furientis (26 Lever) and Kenko (5) are in sync and not on Framer at that URL, so skip.
+- "No job links" on the careers URL (they link only to the board's home page or use another page): Addition Wealth, AiFi, Ascent DS, Atoms, Electric Twin, EnergyCX, Henry Meds, Ideal Completions, Mochi, Lab37, Fresh Prints, Mujin, Nuance Labs, Omni Design, Pontera, Root, SynthBee, Saturn, Gather, Nansen, Star Catcher. Weak lead: the page sends visitors off-site rather than showing roles. Only worth the generic "show your roles on the page" text if the page limit allows after the queue above.
+- 404 on /careers: Stylus Medicine, Kouper Health, SkySafe.
+
+Takeaway: the out-of-sync pattern is mostly an Ashby thing. Keep future scans on Ashby links first.
