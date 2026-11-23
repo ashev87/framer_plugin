@@ -261,3 +261,20 @@ Takeaway: the out-of-sync pattern is mostly an Ashby thing. Keep future scans on
 - LinkedIn page messages still blocked ("limit for starting new conversations with pages"), checked on Fulcrum's correct page linkedin.com/company/fulcrumtechincorporated (withfulcrum is not their page).
 - Fulcrum: emailed hello@withfulcrum.com from Gmail with the Fulcrum text above (subject "3 closed roles still on your careers page").
 - Hanover Park (linkedin.com/company/hanoverpark): no public email. Afresh (linkedin.com/company/afreshtechnologies): only support@ for grocery customers, not used. Both wait for LinkedIn.
+
+## Mon 23 Nov, 19:45: LinkedIn sends
+
+Company-page messages are still blocked (third day; checked on Hanover Park's page). Workaround that works: free messages to people whose profiles are open ("Free message" in the compose box). Sent from Andrei's account via Chrome:
+
+| Company | To | Message |
+|---|---|---|
+| Hanover Park | Baron C., Chief of Staff | 2 open Ashby roles missing (Product Designer, Founding Design Engineer) + check link |
+| Afresh | Tyler Stapp, Senior Talent Acquisition Partner | Staff Data Engineer, Analytics open on Greenhouse, not on the page + check link |
+| The Knot Worldwide | Baylie Lan, Manager, Corporate & GTM Recruiting | re-checked today: 3 of 4 featured roles now closed (AE New Business Italian Market Barcelona, Sales Executive London, Sr Manager Consolidations and Reporting NY) + check link |
+
+Not sent:
+- Numa: re-check shows 1 closed role still listed (Solutions Engineer Intern). Chief of Staff profiles (Hanzel Gregorius, Lucas F.) need Premium InMail. Founders Tasso Roumeliotis, Joel Grossman, Andy Ruff not tried yet.
+- Summ.link: still in sync (8/8), so no specific finding to send. Skip unless a generic note is wanted.
+- Fulcrum: emailed on 22 Nov, no LinkedIn needed yet.
+
+Follow up Thursday if no reply.
